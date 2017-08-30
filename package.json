@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/AndreyGermanov/relayboard_server#readme",
   "dependencies": {
+    "express": "^4.15.4",
     "modbus-serial": "^5.3.2"
   }
 }

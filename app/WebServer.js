@@ -17,13 +17,12 @@ var WebServer = class extends EventEmitter {
         this.http_server.listen(this.config.port);
 
         this.express.get('/request/:command/:arguments',function(req,res) {
-            console.log(req.params);
             self.emit('request',{
                 id: 'req_'+self.requestsCounter++,
                 command: req.params.command,
                 arguments: req.params.arguments,
                 callback: function(response) {
-                    res.end(response);
+                    res.json(response);
                 }
             })
         })

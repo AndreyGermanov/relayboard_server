@@ -19,23 +19,30 @@ var SerialReader = class extends EventEmitter {
     }
 
     run(callback) {
+	var self = this;
         this.port = new SerialPort(this.config.port,{
             baudRate: this.config.baudrate,
             parser: SerialPort.parsers.readline("\n"),
             encoding: 'utf8',
             buffersize: 5100
-        })
-        this.port.on('close', function() {
-            this.run();
-        });
-        var self = this;
-        this.port.on('data',function(string) {
-            var request_id = string.split(' ').shift();
-            if (self.requests_queue && self.requests_queue[request_id]) {
-                self.requests_queue[request_id].callback(string);
-                delete self.requests_queue[request_id];
-            }
-        });
+        }, function() {
+            self.port.on('close', function() {
+	        self.run();
+    	    });
+	
+    	    self.port.on('data',function(string) {
+		string = string.trim();
+        	var request_id = string.split(' ').shift();
+        	if (self.requests_queue && self.requests_queue[request_id]) {
+		    string = string.split(' ');
+		    string.shift();
+		    var result = {};
+		    result[string.shift()] = string.join(' ');
+            	    self.requests_queue[request_id].callback(result);
+            	    delete self.requests_queue[request_id];
+        	}
+    	    });
+	})
 
         this.application.web.on('request',this.processRequest.bind(this));
 
@@ -50,7 +57,7 @@ var SerialReader = class extends EventEmitter {
         for (var i in this.requests_queue) {
             if (Date.now()-this.requests_queue[i].timestamp>600000) {
                 if (typeof(this.requests_queue[i].callback) == 'function') {
-                    this.requests_queue[i].callback('error');
+                    this.requests_queue[i].callback({'error':'Could not run command'});
                 }
                 delete this.requests_queue[i];
             }
