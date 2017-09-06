@@ -15,7 +15,7 @@ var WebServer = class extends EventEmitter {
         this.express = new express();
         this.http_server = http.createServer(this.express);
         this.http_server.listen(this.config.port);
-
+        this.express.use(express.static(__dirname + '/../../public'));
         this.express.get('/request/:command/:arguments?',function(req,res) {
             self.emit('request',{
                 id: 'req_'+self.requestsCounter++,

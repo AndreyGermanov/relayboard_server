@@ -21,7 +21,7 @@ gulp.task( 'server:start', function() {
 });
 
 gulp.task('bundle', function() {
-    return get_files('./public/js/app/client/**/*.*', function(files) {
+    return get_files('./app/client/**/*.*', function(files) {
         return browserify(files)
             .transform(babelify,{presets: ["es2015", "react"]})
             .bundle()
@@ -31,12 +31,10 @@ gulp.task('bundle', function() {
 })
 
 // run server
-gulp.task( 'default', ['server:start'], function() {
-    get_files('./public/js/app/client/**/*.*', function(files) {
+gulp.task( 'default', function() {
+    get_files('./app/client/**/*.*', function(files) {
+        console.log(files);
         return gulp.watch(files,['bundle']);
-    })
-    get_files('./public/js/app/server/**/*.*', function(files) {
-        return gulp.watch(files,server.restart);
     })
 
 });
