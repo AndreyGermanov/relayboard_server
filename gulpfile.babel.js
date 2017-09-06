@@ -33,7 +33,6 @@ gulp.task('bundle', function() {
 // run server
 gulp.task( 'default', ['bundle'], function() {
     get_files('./app/client/**/*.*', function(files) {
-        console.log(files);
         return gulp.watch(files,['bundle']);
     })
 
