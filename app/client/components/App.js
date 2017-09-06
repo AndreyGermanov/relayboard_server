@@ -1,16 +1,16 @@
 import React,{Component} from "react";
-import { Router, Route } from 'react-router';
-import { Link } from 'react-router-dom';
-import createBrowserHistory from 'history/createBrowserHistory';
-import Settings from './Settings';
+import { Route } from 'react-router';
+import { HashRouter,Link } from 'react-router-dom';
+import Settings from '../containers/SettingsContainer';
 import Dashboard from './Dashboard';
+import {Provider} from 'react-redux';
+import Store from '../store/Store';
 
 var App = class extends Component {
     render() {
-        const browserHistory = createBrowserHistory();
         return (
-            <div>
-                <Router history={browserHistory}>
+            <Provider store={Store.store}>
+                <HashRouter>
                 <main>
                     <aside className="al-sidebar">
                         <ul className="al-sidebar-list">
@@ -37,8 +37,8 @@ var App = class extends Component {
                     <footer className="al-footer clearfix">
                     </footer>
                 </main>
-                </Router>
-            </div>
+                </HashRouter>
+            </Provider>
         )
     }
 }
