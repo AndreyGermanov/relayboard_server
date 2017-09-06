@@ -1,6 +1,6 @@
-var SerialReader = require('./SerialReader.js'),
-    WebServer = require('./WebServer.js'),
-    EventEmitter = require('events').EventEmitter;
+import SerialReader from './SerialReader.js';
+import WebServer from './WebServer.js';
+import {EventEmitter} from 'events';
 
 var Application = class extends EventEmitter {
     constructor() {
@@ -14,4 +14,4 @@ var Application = class extends EventEmitter {
     }
 }
 
-module.exports = Application;
+export default Application;

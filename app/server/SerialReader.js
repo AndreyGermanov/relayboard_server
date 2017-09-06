@@ -7,7 +7,7 @@ var SerialReader = class extends EventEmitter {
         super(application);
         this.application = application;
         this.requests_queue = {};
-        this.config = require('../config/serial.js');
+        this.config = require('../../config/serial.js');
     }
 
     processRequest(request) {

@@ -4,4 +4,4 @@ Receives requests from mobile clients to switch relays on Relay boards, which co
  RelayBoard Mobile Client can be downloaded here:
 
  https://github.com/AndreyGermanov/relayboard_mobile_client
- 
+

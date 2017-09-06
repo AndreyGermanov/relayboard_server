@@ -6,7 +6,7 @@ var WebServer = class extends EventEmitter {
     constructor(application) {
         super(application);
         this.application = application;
-        this.config = require('../config/web.js');
+        this.config = require('../../config/web.js');
         this.requestsCounter = 0;
     }
 
