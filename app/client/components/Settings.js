@@ -1,4 +1,6 @@
 import React,{Component} from 'react';
+import Store from '../store/Store';
+import actions from '../actions/SettingsActions';
 
 const Settings = class extends Component {
     render() {
@@ -96,12 +98,10 @@ const Settings = class extends Component {
                                     </div>
                                 </div>
                                 <div className="form-group">
-                                    <div className="col-sm-2 col-sm-offset-10">
-                                        <button className="btn btn-info">
+                                        <button className="btn btn-info pull-right">
                                             <i className="fa fa-plug"> </i>
                                             <span style={{paddingLeft:7}}>Connect</span>
                                         </button>
-                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -109,6 +109,10 @@ const Settings = class extends Component {
                 </div>
             </div>
         )
+    }
+
+    componentWillUnmount() {
+        Store.store.dispatch(actions.setPortalErrorMessages({}));
     }
 };
 export default Settings;
