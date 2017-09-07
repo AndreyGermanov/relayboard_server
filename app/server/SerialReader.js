@@ -11,13 +11,12 @@ var SerialReader = class extends EventEmitter {
     }
 
     processRequest(request) {
-        /*
+
         this.requests_queue[request.id] = {
             callback: request.callback,
             timestamp: Date.now()
-        }*/
-        request.callback([0,0,0,1,1,1,0,0,1,0]);
-        return;
+        }
+
         this.port.write(request.id+' '+request.command+' '+request.arguments+"\n");
     }
 
