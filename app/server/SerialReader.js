@@ -11,15 +11,18 @@ var SerialReader = class extends EventEmitter {
     }
 
     processRequest(request) {
+        /*
         this.requests_queue[request.id] = {
             callback: request.callback,
             timestamp: Date.now()
-        }
+        }*/
+        request.callback([0,0,0,1,1,1,0,0,1,0]);
+        return;
         this.port.write(request.id+' '+request.command+' '+request.arguments+"\n");
     }
 
     run(callback) {
-	var self = this;
+	    var self = this;
         this.port = new SerialPort(this.config.port,{
             baudRate: this.config.baudrate,
             parser: SerialPort.parsers.readline("\n"),
@@ -27,22 +30,22 @@ var SerialReader = class extends EventEmitter {
             buffersize: 5100
         }, function() {
             self.port.on('close', function() {
-	        self.run();
+	            self.run();
     	    });
 	
     	    self.port.on('data',function(string) {
-		string = string.trim();
-        	var request_id = string.split(' ').shift();
-        	if (self.requests_queue && self.requests_queue[request_id]) {
-		    string = string.split(' ');
-		    string.shift();
-		    var result = {};
-		    result[string.shift()] = string.join(' ');
+		        string = string.trim();
+        	    var request_id = string.split(' ').shift();
+        	    if (self.requests_queue && self.requests_queue[request_id]) {
+		            string = string.split(' ');
+		            string.shift();
+		            var result = {};
+		            result[string.shift()] = string.join(' ');
             	    self.requests_queue[request_id].callback(result);
             	    delete self.requests_queue[request_id];
-        	}
+        	    }
     	    });
-	})
+	    })
 
         this.application.web.on('request',this.processRequest.bind(this));
 
