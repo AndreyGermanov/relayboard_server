@@ -6,19 +6,25 @@ import fs from 'fs';
 
 const PortalController = class extends Controller {
     constructor(application) {
-        super(application)
+        super(application);
         this.ddpClient = null;
         this.statusInterval = null;
-        this.pollPeriodForPortal = 5000;
-        setInterval(this.tryConnectToPortal.bind(this),10000);
+        this.pollStatusPeriod = 5000;
+        this.pollConnectionStatusPeriod = 10000;
+        this.lastPortalResponseTime = Date.now();
+
+        setInterval(this.tryConnectToPortal.bind(this),this.pollConnectionStatusPeriod);
     }
 
     tryConnectToPortal() {
         if (!this.connected) {
             if (portal_config && portal_config.host) {
                 this.connectToPortal(function(response) {
-                    console.log(response);
                 });
+            }
+        } else {
+            if (Date.now() - this.lastPortalResponseTime>this.pollConnectionStatusPeriod) {
+                this.connected = false;
             }
         }
     }
@@ -41,14 +47,14 @@ const PortalController = class extends Controller {
             } else {
                 if (!wasReconnect) {
                     self.ddpClient.call('login',[{
-                        user: {email: portal_config.login}, password: portal_config.password}], function(err,result) {
+                        user: {email: portal_config.login}, password: portal_config.password}], function(err) {
                         if (err) {
                             if (callback) {
                                 self.connected = false;
                                 callback({status: 'error', message: 'Login error'})
                             }
                         } else {
-                            self.ddpClient.call('registerRelayBoard',[{id:self.application.relayboard_id,options:config}],(err,result) => {
+                            self.ddpClient.call('registerRelayBoard',[{id:self.application.relayboard_id,options:config}],(err) => {
                                 if (err) {
                                     if (callback) {
                                         self.connected = false;
@@ -78,7 +84,6 @@ const PortalController = class extends Controller {
     }
 
     post_connect(req,res,callback) {
-        var self = this;
         portal_config.host = req.body.host;
         portal_config.port = req.body.port;
         portal_config.login = req.body.login;
@@ -95,7 +100,7 @@ const PortalController = class extends Controller {
         if (this.statusInterval) {
             clearInterval(this.statusInterval);
         }
-        this.statusInterval = setInterval(this.sendRelayStatus.bind(this),this.pollPeriodForPortal);
+        this.statusInterval = setInterval(this.sendRelayStatus.bind(this),this.pollStatusPeriod);
     }
     
     sendRelayStatus() {
@@ -106,12 +111,15 @@ const PortalController = class extends Controller {
                 command: 'STATUS',
                 arguments: '',
                 callback: function (response) {
-                    self.ddpClient.call('updateRelayBoardStatus',[{id:self.application.relayboard_id,status:response}],(err,result) => {
+                    self.ddpClient.call('updateRelayBoardStatus',[{id:self.application.relayboard_id,status:response}],(err) => {
+                        if (!err) {
+                            self.lastPortalResponseTime = Date.now();
+                        }
                     })
                 }
             })
         }
     }
-}
+};
 
 export default PortalController;
