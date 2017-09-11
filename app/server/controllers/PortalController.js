@@ -1,6 +1,8 @@
 import Controller from './Controller';
 import ddpClient from 'ddp';
 import config from '../../../config/relayboard';
+import portal_config from '../../../config/portal';
+import fs from 'fs';
 
 const PortalController = class extends Controller {
     constructor(application) {
@@ -8,18 +10,29 @@ const PortalController = class extends Controller {
         this.ddpClient = null;
         this.statusInterval = null;
         this.pollPeriodForPortal = 5000;
+        setInterval(this.tryConnectToPortal.bind(this),10000);
     }
 
-    post_connect(req,res,callback) {
-        var self = this;
+    tryConnectToPortal() {
+        if (!this.connected) {
+            if (portal_config && portal_config.host) {
+                this.connectToPortal(function(response) {
+                    console.log(response);
+                });
+            }
+        }
+    }
+
+    connectToPortal(callback) {
         this.ddpClient = new ddpClient({
-            host: req.body.host,
-            port: req.body.port,
+            host: portal_config.host,
+            port: portal_config.port,
             ssl: false,
             autoReconnect: true,
             maintainCollections: true,
             useSockJs:true
         });
+        var self = this;
         this.ddpClient.connect(function(err,wasReconnect) {
             if (err) {
                 if (callback) {
@@ -28,29 +41,29 @@ const PortalController = class extends Controller {
             } else {
                 if (!wasReconnect) {
                     self.ddpClient.call('login',[{
-                        user: {email: req.body.login}, password: req.body.password}], function(err,result) {
-                            if (err) {
-                                if (callback) {
-                                    self.connected = false;
-                                    callback({status: 'error', message: 'Login error'})
-                                }
-                            } else {
-                                self.ddpClient.call('registerRelayBoard',[{id:self.application.relayboard_id,options:config}],(err,result) => {
-                                    if (err) {
-                                        if (callback) {
-                                            self.connected = false;
-                                            callback({status: 'error', message: 'Relayboard register error'})
-                                        }
-                                    } else {
-                                        if (callback) {
-                                            self.connected = true;
-                                            callback({status:'ok'});
-                                            self.registerEvents();
-                                        }
-                                    }
-                                })
+                        user: {email: portal_config.login}, password: portal_config.password}], function(err,result) {
+                        if (err) {
+                            if (callback) {
+                                self.connected = false;
+                                callback({status: 'error', message: 'Login error'})
                             }
-                        })
+                        } else {
+                            self.ddpClient.call('registerRelayBoard',[{id:self.application.relayboard_id,options:config}],(err,result) => {
+                                if (err) {
+                                    if (callback) {
+                                        self.connected = false;
+                                        callback({status: 'error', message: 'Relayboard register error'})
+                                    }
+                                } else {
+                                    if (callback) {
+                                        self.connected = true;
+                                        callback({status:'ok'});
+                                        self.registerEvents();
+                                    }
+                                }
+                            })
+                        }
+                    })
                 } else {
                     if (callback) {
                         try {
@@ -62,6 +75,16 @@ const PortalController = class extends Controller {
                 }
             }
         });
+    }
+
+    post_connect(req,res,callback) {
+        var self = this;
+        portal_config.host = req.body.host;
+        portal_config.port = req.body.port;
+        portal_config.login = req.body.login;
+        portal_config.password =req.body.password;
+        this.connectToPortal(callback);
+        fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config));
     }
     
     registerEvents() {

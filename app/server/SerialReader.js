@@ -7,6 +7,7 @@ var SerialReader = class extends EventEmitter {
         super(application);
         this.application = application;
         this.requests_queue = {};
+        this.commands_queue = [];
         this.config = require('../../config/serial.js');
     }
 
@@ -16,8 +17,18 @@ var SerialReader = class extends EventEmitter {
             callback: request.callback,
             timestamp: Date.now()
         }
+        this.commands_queue.push({
+            request_id: request.id,
+            request_command: request.command,
+            request_arguments: request.arguments
+        });
+    }
 
-        this.port.write(request.id+' '+request.command+' '+request.arguments+"\n");
+    sendCommandToSerial() {
+        if (this.commands_queue.length) {
+            var command = this.commands_queue.shift();
+            this.port.write(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
+        };
     }
 
     run(callback) {
@@ -53,6 +64,7 @@ var SerialReader = class extends EventEmitter {
         }
 
         setInterval(this.handleCallbacks.bind(this),5000);
+        setInterval(this.sendCommandToSerial.bind(this),2000);
     }
 
     handleCallbacks() {

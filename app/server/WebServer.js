@@ -3,7 +3,8 @@ var EventEmitter = require('events').EventEmitter,
     express = require('express'),
     body_parser =require('body-parser'),
     async = require('async'),
-    fs = require('fs')
+    fs = require('fs');
+    import portalController from './controllers/PortalController';
 
 var WebServer = class extends EventEmitter {
     constructor(application) {
@@ -21,6 +22,9 @@ var WebServer = class extends EventEmitter {
         this.express.use(express.static(__dirname + '/../../public'));
         this.express.use(body_parser.urlencoded({ extended: true }))
         this.express.use(body_parser.json());
+
+        self.application.controllers['portal'] = new portalController(self.application);
+
         this.express.get('/request/:command/:arguments?',function(req,res) {
             self.emit('request',{
                 id: 'req_'+self.requestsCounter++,
@@ -30,7 +34,8 @@ var WebServer = class extends EventEmitter {
                     res.json(response);
                 }
             })
-        })
+        });
+
         this.express.all('/:controller/:action?', function(req,res) {
             var controllerName = req.params.controller.toString().toLowerCase(),
                 controller = null,
