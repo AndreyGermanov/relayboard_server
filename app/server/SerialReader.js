@@ -12,13 +12,13 @@ var SerialReader = class extends EventEmitter {
     }
 
     processRequest(request) {
-
-        this.requests_queue[request.id] = {
+        var request_id = request.id ? request.id : request.request_id;
+        this.requests_queue[request_id] = {
             callback: request.callback,
             timestamp: Date.now()
         }
         this.commands_queue.push({
-            request_id: request.id,
+            request_id: request_id,
             request_command: request.command,
             request_arguments: request.arguments
         });
@@ -51,7 +51,7 @@ var SerialReader = class extends EventEmitter {
 		            string.shift();
 		            var result = {};
 		            result[string.shift()] = string.join(' ');
-            	    self.requests_queue[request_id].callback(result);
+            	    self.requests_queue[request_id].callback(result,request_id);
             	    delete self.requests_queue[request_id];
         	    }
     	    });

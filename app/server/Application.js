@@ -11,7 +11,7 @@ var Application = class extends EventEmitter {
         this.serial = new SerialReader(this);
         this.web = new WebServer(this);
         this.relayboard_id = null;
-        getmac.getMac(function(err,mac) {
+        getmac.getMac(function(err,mac) { 
             if (!err) {
                 self.relayboard_id = mac.toString().replace(/\:/g,'');
             }

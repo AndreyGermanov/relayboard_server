@@ -3,6 +3,7 @@ import ddpClient from 'ddp';
 import config from '../../../config/relayboard';
 import portal_config from '../../../config/portal';
 import fs from 'fs';
+import _ from 'lodash';
 
 const PortalController = class extends Controller {
     constructor(application) {
@@ -12,6 +13,7 @@ const PortalController = class extends Controller {
         this.pollStatusPeriod = 5000;
         this.pollConnectionStatusPeriod = 10000;
         this.lastPortalResponseTime = Date.now();
+        this.command_responses = {};
 
         setInterval(this.tryConnectToPortal.bind(this),this.pollConnectionStatusPeriod);
     }
@@ -111,9 +113,29 @@ const PortalController = class extends Controller {
                 command: 'STATUS',
                 arguments: '',
                 callback: function (response) {
-                    self.ddpClient.call('updateRelayBoardStatus',[{id:self.application.relayboard_id,status:response}],(err) => {
+                    var command_responses = _.cloneDeep(self.command_responses);
+                    self.command_responses = {};
+                    self.ddpClient.call('updateRelayBoardStatus',[{id:self.application.relayboard_id,status:response,command_responses:command_responses}],(err,result) => {
                         if (!err) {
-                            self.lastPortalResponseTime = Date.now();
+                            if (result) {
+                                try {
+                                    result = JSON.parse(result);
+                                } catch (e) {};
+                            }
+                            if (result.status == 'ok') {
+                                self.lastPortalResponseTime = Date.now();
+                                if (result.commands) {
+                                    for (var i in result.commands) {
+                                        var command = result.commands[i];
+                                        command.request_type = 'remote';
+                                        command.timestamp = Date.now();
+                                        command.callback = function(response,request_id) {
+                                            self.command_responses[request_id] = response;
+                                        }
+                                        self.emit('request',command);
+                                    }
+                                }
+                            }
                         }
                     })
                 }
