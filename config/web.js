@@ -1,5 +1,5 @@
 module.exports = {
-    port: 8082,
+    port: 80,
     ssl: {
         enabled: false,
         cert: '',

@@ -27,6 +27,7 @@ var SerialReader = class extends EventEmitter {
     sendCommandToSerial() {
         if (this.commands_queue.length) {
             var command = this.commands_queue.shift();
+            console.log(command);
             this.port.write(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
         };
     }
@@ -44,6 +45,7 @@ var SerialReader = class extends EventEmitter {
     	    });
 	
     	    self.port.on('data',function(string) {
+                console.log(string);
 		        string = string.trim();
         	    var request_id = string.split(' ').shift();
         	    if (self.requests_queue && self.requests_queue[request_id]) {

@@ -38,7 +38,12 @@ const mapDispatchToProps = (dispatch) => {
         },
         onSubmitPortalConnection: (e) => {
             e.preventDefault();
-            dispatch(actions.connectToPortal(Store.store.getState().Settings));
+            var state = Store.store.getState();
+            if (!state.Settings.connected) {
+                dispatch(actions.connectToPortal(Store.store.getState().Settings));
+            } else {
+                dispatch(actions.disconnectFromPortal());
+            }
         }
     }
 }

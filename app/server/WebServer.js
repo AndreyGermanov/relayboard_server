@@ -11,7 +11,7 @@ var WebServer = class extends EventEmitter {
         super(application);
         this.application = application;
         this.config = require('../../config/web.js');
-        this.requestsCounter = 0;
+        this.requestsCounter =  0;
     }
 
     run(callback) {
@@ -19,10 +19,10 @@ var WebServer = class extends EventEmitter {
         this.express = new express();
         this.http_server = http.createServer(this.express);
         this.http_server.listen(this.config.port);
-        this.express.use(express.static(__dirname + '/../../public'));
+        this.express.use(express.static(__dirname + '/../../public/'));
         this.express.use(body_parser.urlencoded({ extended: true }))
         this.express.use(body_parser.json());
-
+  
         self.application.controllers['portal'] = new portalController(self.application);
 
         this.express.get('/request/:command/:arguments?',function(req,res) {
@@ -44,7 +44,7 @@ var WebServer = class extends EventEmitter {
                 action = 'index';
             } else {
                 action = req.params.action.toString().toLowerCase();
-            }
+            };
 
             var controller = null;
             async.series([ (callback) => {

@@ -1,0 +1,1 @@
+export default {"host":"portal.it-port.ru","port":"3000","login":"andrey@it-port.ru","password":"fckmce123"}

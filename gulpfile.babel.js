@@ -8,7 +8,7 @@ var gulp = require('gulp'),
 
 function get_files(path,callback) {
     glob(path, function(err, files) {
-        if (!err) {
+        if (!err) { 
             callback(files);
         } else {
             console.log(err);

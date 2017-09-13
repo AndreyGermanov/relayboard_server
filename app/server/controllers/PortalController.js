@@ -19,16 +19,16 @@ const PortalController = class extends Controller {
     }
 
     tryConnectToPortal() {
-        if (!this.connected) {
+        if (!this.isConnected()) {
             if (portal_config && portal_config.host) {
                 this.connectToPortal(function(response) {
                 });
             }
-        } else {
-            if (Date.now() - this.lastPortalResponseTime>this.pollConnectionStatusPeriod) {
-                this.connected = false;
-            }
         }
+    }
+
+    isConnected() {
+        return Date.now() - this.lastPortalResponseTime<this.pollConnectionStatusPeriod
     }
 
     connectToPortal(callback) {
@@ -65,6 +65,7 @@ const PortalController = class extends Controller {
                                 } else {
                                     if (callback) {
                                         self.connected = true;
+                                        self.lastPortalResponseTime = Date.now();
                                         callback({status:'ok'});
                                         self.registerEvents();
                                     }
@@ -80,7 +81,7 @@ const PortalController = class extends Controller {
                             self.registerEvents();
                         } catch(e) {}
                     }
-                }
+                } 
             }
         });
     }
@@ -93,9 +94,14 @@ const PortalController = class extends Controller {
         this.connectToPortal(callback);
         fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config));
     }
+
+    post_disconnect(req,res,callback) {
+        self.ddpClient.close();
+        callback({status:'ok'});
+    }
     
     registerEvents() {
-        if (this.connected) {
+        if (this.isConnected()) {
             this.removeAllListeners('request');
             this.on('request',this.application.serial.processRequest.bind(this.application.serial));
         }
@@ -107,7 +113,7 @@ const PortalController = class extends Controller {
     
     sendRelayStatus() {
         var self = this;
-        if (this.connected) {
+        if (this.isConnected()) {
             self.emit('request', {
                 id: 'portstat_' + Date.now(),
                 command: 'STATUS',
@@ -141,6 +147,14 @@ const PortalController = class extends Controller {
                 }
             })
         }
+    }
+
+    get_settings(req,res,callback) {
+        callback({status: 'ok', config: portal_config, connected: this.isConnected()})
+    }
+
+    get_status(req,res,callback) {
+        callback({status: 'ok', connected: this.isConnected()})
     }
 };
 
