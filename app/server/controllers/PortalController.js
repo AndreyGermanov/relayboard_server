@@ -114,36 +114,33 @@ const PortalController = class extends Controller {
     sendRelayStatus() {
         var self = this;
         if (this.isConnected()) {
-            self.emit('request', {
-                id: 'portstat_' + Date.now(),
-                command: 'STATUS',
-                arguments: '',
-                callback: function (response) {
-                    var command_responses = _.cloneDeep(self.command_responses);
-                    self.command_responses = {};
-                    self.ddpClient.call('updateRelayBoardStatus',[{id:self.application.relayboard_id,status:response,command_responses:command_responses}],(err,result) => {
-                        if (!err) {
-                            if (result) {
-                                try {
-                                    result = JSON.parse(result);
-                                } catch (e) {};
-                            }
-                            if (result.status == 'ok') {
-                                self.lastPortalResponseTime = Date.now();
-                                if (result.commands) {
-                                    for (var i in result.commands) {
-                                        var command = result.commands[i];
-                                        command.request_type = 'remote';
-                                        command.timestamp = Date.now();
-                                        command.callback = function(response,request_id) {
-                                            self.command_responses[request_id] = response;
-                                        }
-                                        self.emit('request',command);
-                                    }
+            var command_responses = _.cloneDeep(self.command_responses);
+            self.command_responses = {};
+            self.ddpClient.call('updateRelayBoardStatus',
+                [{id:self.application.relayboard_id,
+                    status:self.application.serial.current_relay_status,
+                    timestamp: self.application.serial.current_relay_status_timestamp,
+                    command_responses:command_responses}],(err,result) => {
+                if (!err) {
+                    if (result) {
+                        try {
+                            result = JSON.parse(result);
+                        } catch (e) {};
+                    }
+                    if (result.status == 'ok') {
+                        self.lastPortalResponseTime = Date.now();
+                        if (result.commands) {
+                            for (var i in result.commands) {
+                                var command = result.commands[i];
+                                command.request_type = 'remote';
+                                command.timestamp = Date.now();
+                                command.callback = function(response,request_id) {
+                                    self.command_responses[request_id] = response;
                                 }
+                                self.emit('request',command);
                             }
                         }
-                    })
+                    }
                 }
             })
         }

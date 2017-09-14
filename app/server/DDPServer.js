@@ -5,7 +5,6 @@ const DDPServer = class extends EventEmitter {
     constructor(application) {
         super();
         this.application = application;
-        this.current_relay_status = {};
     }
 
     run(callback) {
@@ -20,20 +19,22 @@ const DDPServer = class extends EventEmitter {
         var self = this;
         this.ddpServer.methods({
             getStatus: () => {
-                self.emit('request', {
-                        id: 'local_portstat_' + Date.now(),
-                        command: 'STATUS',
-                        arguments: '',
-                        callback: (response) => {
-                            this.current_relay_status = response['STATUS'].split(',')
-                        }
+                return JSON.stringify({status:'ok',
+                    result:self.application.serial.current_relay_status,
+                    timestamp:self.application.serial.current_relay_status_timestamp});
+            },
+            switchRelay: (params) => {
+                console.log(params);
+                self.application.serial.emit('request', {
+                    request_id: 'switch_relay_'+Date.now(),
+                    command: params.command,
+                    arguments: params.number,
+                    callback: function() {
+                        //done
                     }
-                );
-                return JSON.stringify({status:'ok',result:this.current_relay_status});
+                });
             }
         })
-
-        this.on('request',this.application.serial.processRequest.bind(this.application.serial));
     }
 }
 

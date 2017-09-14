@@ -14,7 +14,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         onRelayClick: (command,number) => {
-            fetch('/request/'+command+'/'+number);
+            Store.ddpClient.call('switchRelay',[{number:number,command:command}],function(err,result) {
+            });
         }
     }
 }

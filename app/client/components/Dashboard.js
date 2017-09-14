@@ -64,7 +64,7 @@ const Dashboard = class extends Component {
     componentDidMount() {
         this.statusUpdateInterval = setInterval(function() {
             Store.store.dispatch(actions.getRelayStatuses())
-        }, 5000);
+        }, 1000);
     }
 
     componentWillUnmount() {

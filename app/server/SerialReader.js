@@ -1,5 +1,6 @@
 var SerialPort = require('serialport'),
-    EventEmitter = require('events').EventEmitter;
+    EventEmitter = require('events').EventEmitter,
+    async = require('async');
 
 var SerialReader = class extends EventEmitter {
 
@@ -8,7 +9,12 @@ var SerialReader = class extends EventEmitter {
         this.application = application;
         this.requests_queue = {};
         this.commands_queue = [];
+        this.connected = false;
+        this.current_relay_status = [];
+        this.current_relay_status_timestamp = [];
         this.config = require('../../config/serial.js');
+        this.on('request',this.processRequest.bind(this));
+        this.getRelayStatus();
     }
 
     processRequest(request) {
@@ -27,9 +33,37 @@ var SerialReader = class extends EventEmitter {
     sendCommandToSerial() {
         if (this.commands_queue.length) {
             var command = this.commands_queue.shift();
-            console.log(command);
             this.port.write(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
         };
+    }
+
+    getRelayStatus() {
+        var self = this;
+        var timeout = setTimeout(function() {
+            self.getRelayStatus();
+        },20000);
+        self.emit('request', {
+            id: 'portstat_' + Date.now(),
+            command: 'STATUS',
+            arguments: '',
+            callback: function (response) {
+                clearTimeout(timeout);
+                if (typeof(response) == 'string') {
+                    try {
+                        response = JSON.parse(response);
+                        response = response['STATUS'].split(',');
+                    } catch (e) {
+                        setTimeout(self.getRelayStatus.bind(self),1000);
+                        return;
+                    }
+                } else {
+                    response = response['STATUS'].split(',');
+                }
+                self.current_relay_status = response;
+                self.current_relay_status_timestamp = Date.now();
+                setTimeout(self.getRelayStatus.bind(self),1000);
+            }
+        });
     }
 
     run(callback) {
@@ -45,7 +79,6 @@ var SerialReader = class extends EventEmitter {
     	    });
 	
     	    self.port.on('data',function(string) {
-                console.log(string);
 		        string = string.trim();
         	    var request_id = string.split(' ').shift();
         	    if (self.requests_queue && self.requests_queue[request_id]) {
@@ -59,7 +92,7 @@ var SerialReader = class extends EventEmitter {
     	    });
 	    })
 
-        this.application.web.on('request',this.processRequest.bind(this));
+
 
         if (callback) {
             callback();

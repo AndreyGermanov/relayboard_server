@@ -26,14 +26,18 @@ var WebServer = class extends EventEmitter {
         self.application.controllers['portal'] = new portalController(self.application);
 
         this.express.get('/request/:command/:arguments?',function(req,res) {
-            self.emit('request',{
-                id: 'req_'+self.requestsCounter++,
-                command: req.params.command,
-                arguments: req.params.arguments,
-                callback: function(response) {
-                    res.json(response);
-                }
-            })
+            if (req.params.command=='STATUS') {
+                res.json(self.application.serial.current_relay_status);
+            } else {
+                self.application.serial.emit('request', {
+                    id: 'req_' + self.requestsCounter++,
+                    command: req.params.command,
+                    arguments: req.params.arguments,
+                    callback: function (response) {
+                        res.json(response);
+                    }
+                })
+            }
         });
 
         this.express.all('/:controller/:action?', function(req,res) {

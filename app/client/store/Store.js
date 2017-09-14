@@ -15,13 +15,11 @@ const Store = class {
             ddpVersion: 1,
             useSockJs: true
         };
-        console.log(options);
         this.ddpClient = new DDPClient(options);
         this.ddpClient.connect(function(error, wasReconnect) {});
     }
 
     getRelaysStatus(callback) {
-        console.log('about to get status');
         this.ddpClient.call('getStatus',[],function(err,result) {
             if (result) {
                 result = JSON.parse(result);
