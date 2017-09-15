@@ -20,10 +20,10 @@ void printRelayStatuses() {
 void switchRelay(int relayNumber,int mode) {
   if (mode == HIGH) {
     digitalWrite(relayNumber,HIGH);
-    relayStatuses[argument.toInt()-1] = 1;
+    relayStatuses[argument.toInt()-1] = 0;
   } else if (mode == LOW) {
     digitalWrite(relayNumber,LOW);
-    relayStatuses[argument.toInt()-1] = 0;
+    relayStatuses[argument.toInt()-1] = 1;
   }
 }
 
@@ -32,6 +32,7 @@ void setup()
   Serial.begin(9600);
   for (int i=1;i<13;i++) {
     pinMode(i,OUTPUT);
+    digitalWrite(i,HIGH);
   }
 }
 
@@ -52,10 +53,10 @@ void loop()
         argument = incomingLine;
       }
       if (command=="ON") {
-        switchRelay(argument.toInt(),HIGH);
+        switchRelay(argument.toInt(),LOW);
         printRelayStatuses();
       } else if (command == "OFF") {
-        switchRelay(argument.toInt(),LOW);
+        switchRelay(argument.toInt(),HIGH);
         printRelayStatuses();
       } else if (command == "STATUS") {
         printRelayStatuses();

@@ -20,14 +20,24 @@ const Store = class {
     }
 
     getRelaysStatus(callback) {
-        this.ddpClient.call('getStatus',[],function(err,result) {
-            if (result) {
-                result = JSON.parse(result);
-            }
-            if (callback) {
-                callback(result.result);
-            }
-        })
+        if (this.ddpClient._connectionFailed) {
+            this.ddpClient.connect(function(error, wasReconnect) {});
+        }
+        try {
+            this.ddpClient.call('getStatus', [], function (err, result) {
+                if (err) {
+                    console.log(err);
+                }
+                if (result) {
+                    result = JSON.parse(result);
+                }
+                if (callback) {
+                    callback(result.result);
+                }
+            })
+        } catch (e) {
+            console.log(e);
+        }
     }
 }
 
