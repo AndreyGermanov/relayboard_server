@@ -1,4 +1,4 @@
 module.exports = {
-    port: '/dev/ttyUSB0',
+    port: '/dev/ttyUSB2',
     baudrate: 9600
 }

@@ -14,7 +14,6 @@ var SerialReader = class extends EventEmitter {
         this.current_relay_status_timestamp = [];
         this.config = require('../../config/serial.js');
         this.on('request',this.processRequest.bind(this));
-        this.getRelayStatus();
     }
 
     processRequest(request) {
@@ -37,35 +36,6 @@ var SerialReader = class extends EventEmitter {
         };
     }
 
-    getRelayStatus() {
-        var self = this;
-        var timeout = setTimeout(function() {
-            self.getRelayStatus();
-        },20000);
-        self.emit('request', {
-            id: 'portstat_' + Date.now(),
-            command: 'STATUS',
-            arguments: '',
-            callback: function (response) {
-                clearTimeout(timeout);
-                if (typeof(response) == 'string') {
-                    try {
-                        response = JSON.parse(response);
-                        response = response['STATUS'].split(',');
-                    } catch (e) {
-                        setTimeout(self.getRelayStatus.bind(self),1000);
-                        return;
-                    }
-                } else {
-                    response = response['STATUS'].split(',');
-                }
-                self.current_relay_status = response;
-                self.current_relay_status_timestamp = Date.now();
-                setTimeout(self.getRelayStatus.bind(self),1000);
-            }
-        });
-    }
-
     run(callback) {
 	    var self = this;
         this.port = new SerialPort(this.config.port,{
@@ -84,11 +54,18 @@ var SerialReader = class extends EventEmitter {
         	    if (self.requests_queue && self.requests_queue[request_id]) {
 		            string = string.split(' ');
 		            string.shift();
-		            var result = {};
-		            result[string.shift()] = string.join(' ');
-            	    self.requests_queue[request_id].callback(result,request_id);
-            	    delete self.requests_queue[request_id];
-        	    }
+                    var result = {};
+                    result[string.shift()] = string.join(' ');
+                    self.requests_queue[request_id].callback(result, request_id);
+                    delete self.requests_queue[request_id];
+        	    } else {
+                    string = string.split(' ');
+                    string.shift();
+                    if (string[0] == 'STATUS') {
+                        self.current_relay_status = string[1].split(',');
+                        self.current_relay_status_timestamp = Date.now();
+                    }
+                }
     	    });
 	    })
 

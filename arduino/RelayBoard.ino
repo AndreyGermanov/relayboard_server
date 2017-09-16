@@ -54,12 +54,9 @@ void loop()
       }
       if (command=="ON") {
         switchRelay(argument.toInt(),LOW);
-        printRelayStatuses();
       } else if (command == "OFF") {
         switchRelay(argument.toInt(),HIGH);
-        printRelayStatuses();
-      } else if (command == "STATUS") {
-        printRelayStatuses();
       }
     }
+    printRelayStatuses();
 }

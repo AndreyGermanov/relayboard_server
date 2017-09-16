@@ -19,12 +19,14 @@ const DDPServer = class extends EventEmitter {
         var self = this;
         this.ddpServer.methods({
             getStatus: () => {
+                console.log(JSON.stringify({status:'ok',
+                    result:self.application.serial.current_relay_status,
+                    timestamp:self.application.serial.current_relay_status_timestamp}));
                 return JSON.stringify({status:'ok',
                     result:self.application.serial.current_relay_status,
                     timestamp:self.application.serial.current_relay_status_timestamp});
             },
             switchRelay: (params) => {
-                console.log(params);
                 self.application.serial.emit('request', {
                     request_id: 'switch_relay_'+Date.now(),
                     command: params.command,
