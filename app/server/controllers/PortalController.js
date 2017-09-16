@@ -35,7 +35,7 @@ const PortalController = class extends Controller {
         this.ddpClient = new ddpClient({
             host: portal_config.host,
             port: portal_config.port,
-            ssl: false,
+            ssl: true,
             autoReconnect: true,
             maintainCollections: true,
             useSockJs:true
