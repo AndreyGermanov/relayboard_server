@@ -17,14 +17,24 @@ const Store = class {
         };
         this.ddpClient = new DDPClient(options);
         this.ddpClient.connect(function(error, wasReconnect) {});
+        this.lastConnectTimestamp = Date.now();
+        setInterval(this.checkDDPConnection.bind(this),1000);
+    }
+
+    checkDDPConnection() {
+        if (Date.now() - this.lastConnectTimestamp>5000) {
+            this.ddpClient.connect(function(error, wasReconnect) {});
+        }
     }
 
     getRelaysStatus(callback) {
+        var self = this;
         if (this.ddpClient._connectionFailed) {
             this.ddpClient.connect(function(error, wasReconnect) {});
         }
         try {
             this.ddpClient.call('getStatus', [], function (err, result) {
+                self.lastConnectTimestamp = Date.now();
                 if (err) {
                     console.log(err);
                 }

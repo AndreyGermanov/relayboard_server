@@ -14,6 +14,7 @@ const PortalController = class extends Controller {
         this.pollConnectionStatusPeriod = 10000;
         this.lastPortalResponseTime = Date.now();
         this.command_responses = {};
+        this.connect = false;
 
         setInterval(this.tryConnectToPortal.bind(this),this.pollConnectionStatusPeriod);
     }
@@ -41,6 +42,9 @@ const PortalController = class extends Controller {
             useSockJs:true
         });
         var self = this;
+        if (!this.connect) {
+            return 0;
+        }
         this.ddpClient.connect(function(err,wasReconnect) {
             if (err) {
                 if (callback) {
@@ -86,18 +90,46 @@ const PortalController = class extends Controller {
         });
     }
 
-    post_connect(req,res,callback) {
-        portal_config.host = req.body.host;
-        portal_config.port = req.body.port;
-        portal_config.login = req.body.login;
-        portal_config.password =req.body.password;
-        this.connectToPortal(callback);
-        fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config));
+    post_save(params,callback) {
+        portal_config.host = params.host;
+        portal_config.port = params.port;
+        portal_config.login = params.login;
+        portal_config.password =params.password;
+        fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config), function(err) {
+            if (!err) {
+                callback({status:'ok'});
+            } else {
+                callback({status:'error',message:err})
+            }
+        });
     }
 
-    post_disconnect(req,res,callback) {
+    post_connect(params,callback) {
+        var self = this;
+        this.connectToPortal(function() {
+            portal_config.connect = true;
+            self.connect = true;
+            fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config), function(err) {
+                if (!err) {
+                    callback({status:'ok'});
+                } else {
+                    callback({status:'error',message:err})
+                }
+            });
+        });
+    }
+
+    post_disconnect(params,callback) {
         self.ddpClient.close();
-        callback({status:'ok'});
+        portal_config.connect = false;
+        self.connect = false;
+        fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config), function(err) {
+            if (!err) {
+                callback({status:'ok'});
+            } else {
+                callback({status:'error',message:err})
+            }
+        });
     }
     
     registerEvents() {

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import fetch from 'isomorphic-fetch';
+import Store from '../store/Store';
 
 const SettingsActions = class {
 
@@ -66,7 +66,8 @@ const SettingsActions = class {
         }
     }
 
-    connectToPortal(form) {
+    savePortalSettings(form) {
+        var self = this;
         return (dispatch) => {
             var errors = {};
             if (!form.host) {
@@ -88,52 +89,57 @@ const SettingsActions = class {
             if (_.toArray(errors).length>0) {
                 dispatch(this.setPortalErrorMessages(errors))
             } else {
-                fetch('/portal/connect',{
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-                        'Content-Type': 'application/json; charset=utf-8'
-                    },
-                    body: JSON.stringify({
-                        host: form.host,
-                        port: form.port,
-                        login: form.login,
-                        password: form.password
-                    })
-                }).then((response) => {
-                    if (response.ok) {
-                        response = response.json();
-                        if (response.status == 'error') {
-                            errors['general'] = response.message;
-                            dispatch(this.setPortalErrorMessages(errors))
-                        } else {
-                            dispatch(this.setConnected(true));
-                        }
+                Store.ddpClient.call('portal_post_save', {
+                    host: form.host,
+                    port: form.port,
+                    login: form.login,
+                    password: form.password,
+                    delayed: true
+                }, function(err,result) {
+                    if (!err && result.status == 'ok') {
+
                     } else {
-                        errors['general'] = response.statusText;
-                        dispatch(this.setPortalErrorMessages(errors))
+                        if (err) {
+                            errors['general'] = err;
+                        } else if (result.status == 'error') {
+                            errors['general'] = response.message;
+                        }
+                        dispatch(self.setPortalErrorMessages(errors));
                     }
-                },(error) => {
-                    dispatch(this.setPortalErrorMessages(error))
                 })
             }
+        }
+    }
+    
+    connectToPortal() {
+        return (dispatch) => {
+            Store.ddpClient.call('portal_post_connect', [], function(err,result) {
+                if (!err && result.status == 'ok') {
+
+                } else {
+                    if (err) {
+                        errors['general'] = err;
+                    } else if (result.status == 'error') {
+                        errors['general'] = response.message;
+                    }
+                    dispatch(self.setPortalErrorMessages(errors));
+                }
+            })
         }
     }
 
     disconnectFromPortal() {
         return (dispatch) => {
-            fetch('/portal/disconnect', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-                    'Content-Type': 'application/json; charset=utf-8'
-                }
-            }).then((response) => {
-                if (response.ok) {
-                    response = response.json();
-                    if (response.status == 'ok') {
-                        dispatch(this.setConnected(false));
+            Store.ddpClient.call('portal_post_disconnect', [], function(err,result) {
+                if (!err && result.status == 'ok') {
+
+                } else {
+                    if (err) {
+                        errors['general'] = err;
+                    } else if (result.status == 'error') {
+                        errors['general'] = response.message;
                     }
+                    dispatch(self.setPortalErrorMessages(errors));
                 }
             })
         }
@@ -146,7 +152,7 @@ const SettingsActions = class {
                 headers: {
                     'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
                     'Content-Type': 'application/json; charset=utf-8'
-                },
+                }
             }).then((response) => {
                 if (response.ok) {
                     response.json().then((response) => {

@@ -1,4 +1,4 @@
-import DDP from 'ddp-server-reactive';
+import DDP from './lib/ddp.js';
 import {EventEmitter} from 'events';
 
 const DDPServer = class extends EventEmitter {
@@ -8,7 +8,7 @@ const DDPServer = class extends EventEmitter {
     }
 
     run(callback) {
-        this.ddpServer = new DDP({httpServer: this.application.web.http_server});
+        this.ddpServer = new DDP({httpServer: this.application.web.http_server,application:this.application});
         this.registerMethods();
         if (callback) {
             callback();
@@ -17,11 +17,20 @@ const DDPServer = class extends EventEmitter {
 
     registerMethods() {
         var self = this;
-        this.ddpServer.methods({
-            getStatus: () => {
-                return JSON.stringify({status:'ok',
-                    result:self.application.serial.current_relay_status,
-                    timestamp:self.application.serial.current_relay_status_timestamp});
+        var methods = {
+            getStatus: (callback) => {
+                if (callback) {
+                    callback(JSON.stringify({status:'ok',
+                        result:self.application.serial.current_relay_status,
+                        timestamp:self.application.serial.current_relay_status_timestamp})
+                    )
+                } else {
+                    return JSON.stringify({
+                        status: 'ok',
+                        result: self.application.serial.current_relay_status,
+                        timestamp: self.application.serial.current_relay_status_timestamp
+                    });
+                }
             },
             switchRelay: (params) => {
                 self.application.serial.emit('request', {
@@ -33,8 +42,10 @@ const DDPServer = class extends EventEmitter {
                     }
                 });
             }
-        })
+        };
+        
+        this.ddpServer.methods(methods);
     }
-}
+};
 
 export default DDPServer;
