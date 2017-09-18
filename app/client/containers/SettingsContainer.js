@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch) => {
                 dispatch(actions.changePortalPasswordField(e.target.value))
             }
         },
-        onSubmitPortalConnection: (e) => {
+        onSavePortalConnectionSettings: (e) => {
             e.preventDefault();
             var state = Store.store.getState();
             if (!state.Settings.connected) {

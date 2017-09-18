@@ -16,14 +16,21 @@ const Settings = class extends Component {
                 <div className="flexbox">
                     <div className="panel panel-blur" style={{flex:1}}>
                         <div className="panel-heading">
-                            <h3 className="panel-title">Portal connection</h3>
+                            <h3 className="panel-title">
+                                Portal connection
+                                 <span className="pull-right">
+                                    <button type='button' className="btn btn-default btn-xs" onClick={this.props.onSavePortalConnectionSettings.bind(this)}><span className="fa fa-save"/>&nbsp;Save changes</button>
+                                    &nbsp;&nbsp;&nbsp;
+                                     <button type='button' className="btn btn-default btn-xs"><span className="fa fa-plug"/>&nbsp;Connect</button>
+                                </span>
+                            </h3>
                         </div>
                         <div className="panel-body">
                             <div style={{display:(fields['general'].message.length ? '': 'none')}} className="alert bg-danger">
                                 <span className="fa fa-exclamation-circle" style={{paddingRight:7}}></span>
                                 {this.props.errors['general']}
                             </div>
-                            <form className="form form-horizontal" onSubmit={this.props.onSubmitPortalConnection.bind(this)}>
+                            <form className="form form-horizontal">
                                 <div className={"form-group "+fields['host'].has_error_class}>
                                     <label className="control-label col-sm-2" htmlFor="hostname">Host:</label>
                                     <div className="col-sm-10">
@@ -53,12 +60,6 @@ const Settings = class extends Component {
                                         <input className="form-control" id="password" placeholder={fields['password'].placeholder}  value={this.props.password}
                                                type="password" onChange={this.props.onChangePasswordField.bind(this)}/>
                                     </div>
-                                </div>
-                                <div className="form-group">
-                                        <button className="btn btn-info pull-right">
-                                            <i className="fa fa-plug"> </i>
-                                            <span style={{paddingLeft:7}}>{submitButtonText}</span>
-                                        </button>
                                 </div>
                             </form>
                         </div>
