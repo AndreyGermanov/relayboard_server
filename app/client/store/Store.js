@@ -16,27 +16,36 @@ const Store = class {
             useSockJs: true
         };
         this.ddpClient = new DDPClient(options);
-        this.ddpClient.connect(function(error, wasReconnect) {});
+
         this.lastConnectTimestamp = Date.now();
         setInterval(this.checkDDPConnection.bind(this),1000);
     }
 
+    ddpConnect(callback) {
+        this.ddpClient.connect(callback);
+    }
+
     checkDDPConnection() {
+        var self = this;
         if (Date.now() - this.lastConnectTimestamp>5000) {
-            this.ddpClient.connect(function(error, wasReconnect) {});
+            self.lastConnectTimestamp = Date.now();
+            this.ddpClient.connect();
         }
+    }
+
+    isDDPClientConnected() {
+        return Date.now() - this.lastConnectTimestamp < 5000;
     }
 
     getRelaysStatus(callback) {
         var self = this;
         if (this.ddpClient._connectionFailed) {
-            this.ddpClient.connect(function(error, wasReconnect) {});
+            this.ddpClient.connect();
         }
         try {
             this.ddpClient.call('getStatus', [], function (err, result) {
                 self.lastConnectTimestamp = Date.now();
                 if (err) {
-                    console.log(err);
                 }
                 if (result) {
                     result = JSON.parse(result);
@@ -46,7 +55,6 @@ const Store = class {
                 }
             })
         } catch (e) {
-            console.log(e);
         }
     }
 }

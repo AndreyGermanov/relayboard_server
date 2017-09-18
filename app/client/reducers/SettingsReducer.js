@@ -35,15 +35,14 @@ const SettingsReducer = (state,action) => {
                 newState.errors[i] = action.errors[i];
             }
             break;
-        case actions.types.SET_CONNECTED_TO_PORTAL: 
-            newState.connected = actions.value;
+        case actions.types.SET_CONNECTED_TO_PORTAL:
+            newState.connected = action.value;
             break;
         case actions.types.APPLY_SETTINGS:
             newState.host = action.config.host;
             newState.port = action.config.port;
             newState.login = action.config.login;
             newState.password = action.config.password;
-            console.log(newState);
             break;
     }
 

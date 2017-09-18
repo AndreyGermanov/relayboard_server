@@ -96,7 +96,6 @@ var DDPServer = function(opts) {
                 },
                 function(callback) {
                   if (data.method in methods) {
-
                     try {
                       var context = this;
                       if (controller) {

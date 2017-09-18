@@ -36,13 +36,17 @@ const mapDispatchToProps = (dispatch) => {
                 dispatch(actions.changePortalPasswordField(e.target.value))
             }
         },
-        onSavePortalConnectionSettings: (e) => {
+        onSavePortalConnectionSettingsClick: (e) => {
             e.preventDefault();
             dispatch(actions.savePortalSettings(Store.store.getState().Settings));
         },
-        onConnectToPortalClick: () => {
+        onConnectToPortalClick: (e) => {
             e.preventDefault();
-            dispatch(actions.connectToPortal());
+            if (!Store.store.getState().Settings.connected) {
+                dispatch(actions.connectToPortal());
+            } else {
+                dispatch(actions.disconnectFromPortal());
+            }
         }
     }
 }

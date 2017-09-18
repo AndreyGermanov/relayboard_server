@@ -27,6 +27,8 @@ var SerialReader = class extends EventEmitter {
             request_command: request.command,
             request_arguments: request.arguments
         });
+        console.log(this.requests_queue);
+        console.log(this.commands_queue);
     }
 
     sendCommandToSerial() {

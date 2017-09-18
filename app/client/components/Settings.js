@@ -6,8 +6,16 @@ const Settings = class extends Component {
     render() {
         this.prepareForm();
         var fields = this.fields;
-        var submitButtonText = this.props.connected ? 'Disconnect' : 'Connect';
-        console.log(this.props);
+        var connectedStyle = {
+            color: 'green'
+        };
+        var connectButtonName = 'Disconnect';
+        if (!this.props.connected) {
+            connectedStyle = {
+                color: 'red'
+            };
+            connectButtonName = 'Connect';
+        };
         return (
             <div>
                 <div className="content-top clearfix">
@@ -16,12 +24,12 @@ const Settings = class extends Component {
                 <div className="flexbox">
                     <div className="panel panel-blur" style={{flex:1}}>
                         <div className="panel-heading">
-                            <h3 className="panel-title">
+                            <h3 className="panel-title" style={connectedStyle}>
                                 Portal connection
                                  <span className="pull-right">
-                                    <button type='button' className="btn btn-default btn-xs" onClick={this.props.onSavePortalConnectionSettings.bind(this)}><span className="fa fa-save"/>&nbsp;Save changes</button>
+                                    <button type='button' className="btn btn-default btn-xs" onClick={this.props.onSavePortalConnectionSettingsClick.bind(this)}><span className="fa fa-save"/>&nbsp;Save changes</button>
                                     &nbsp;&nbsp;&nbsp;
-                                     <button type='button' className="btn btn-default btn-xs"><span className="fa fa-plug"/>&nbsp;Connect</button>
+                                     <button type='button' className="btn btn-default btn-xs" onClick={this.props.onConnectToPortalClick.bind(this)}><span className="fa fa-plug"/>&nbsp;{connectButtonName}</button>
                                 </span>
                             </h3>
                         </div>
@@ -70,7 +78,12 @@ const Settings = class extends Component {
     }
 
     componentDidMount() {
+        while (!Store.isDDPClientConnected()) {
+        }
         Store.store.dispatch(actions.getPortalSettings());
+        setInterval(function() {
+            Store.store.dispatch(actions.getPortalStatus());
+        },1000);
     }
 
     componentDidUpdate() {

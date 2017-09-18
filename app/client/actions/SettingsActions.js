@@ -59,7 +59,6 @@ const SettingsActions = class {
     }
 
     applySettings(config) {
-        console.log("APPLYING SETTINGS");
         return {
             type: this.types.APPLY_SETTINGS,
             config: config
@@ -113,7 +112,7 @@ const SettingsActions = class {
     
     connectToPortal() {
         return (dispatch) => {
-            Store.ddpClient.call('portal_post_connect', [], function(err,result) {
+            Store.ddpClient.call('portal_post_connect', {delayed:true}, function(err,result) {
                 if (!err && result.status == 'ok') {
 
                 } else {
@@ -130,15 +129,10 @@ const SettingsActions = class {
 
     disconnectFromPortal() {
         return (dispatch) => {
-            Store.ddpClient.call('portal_post_disconnect', [], function(err,result) {
+            Store.ddpClient.call('portal_post_disconnect', {delayed:true}, function(err,result) {
                 if (!err && result.status == 'ok') {
 
                 } else {
-                    if (err) {
-                        errors['general'] = err;
-                    } else if (result.status == 'error') {
-                        errors['general'] = response.message;
-                    }
                     dispatch(self.setPortalErrorMessages(errors));
                 }
             })
@@ -146,25 +140,28 @@ const SettingsActions = class {
     }
     
     getPortalSettings() {
+        var self = this;
         return (dispatch) => {
-            fetch('/portal/settings', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-                    'Content-Type': 'application/json; charset=utf-8'
-                }
-            }).then((response) => {
-                if (response.ok) {
-                    response.json().then((response) => {
-                        if (response.status == 'ok') {
-                            dispatch(this.applySettings(response.config));
-                            dispatch(this.setConnected(response.connected));
-                        }
-                    });
+            Store.ddpClient.call('portal_get_settings', {delayed:true}, function(err,result) {
+                if (!err && result.status == 'ok') {
+                    dispatch(self.applySettings(result.config));
+                    dispatch(self.setConnected(result.connected));
                 }
             })
         }
     }
+
+    getPortalStatus() {
+        var self = this;
+        return (dispatch) => {
+            Store.ddpClient.call('portal_get_status', {delayed:true}, function(err,result) {
+                if (!err && result.status == 'ok') {
+                    dispatch(self.setConnected(result.connected));
+                }
+            })
+        }
+    }
+
 };
 
 export default new SettingsActions();

@@ -106,9 +106,9 @@ const PortalController = class extends Controller {
 
     post_connect(params,callback) {
         var self = this;
+        self.connect = true;
         this.connectToPortal(function() {
             portal_config.connect = true;
-            self.connect = true;
             fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config), function(err) {
                 if (!err) {
                     callback({status:'ok'});
@@ -120,6 +120,7 @@ const PortalController = class extends Controller {
     }
 
     post_disconnect(params,callback) {
+        var self = this;
         self.ddpClient.close();
         portal_config.connect = false;
         self.connect = false;
@@ -178,11 +179,11 @@ const PortalController = class extends Controller {
         }
     }
 
-    get_settings(req,res,callback) {
+    get_settings(params,callback) {
         callback({status: 'ok', config: portal_config, connected: this.isConnected()})
     }
 
-    get_status(req,res,callback) {
+    get_status(params,callback) {
         callback({status: 'ok', connected: this.isConnected()})
     }
 };
