@@ -42,7 +42,7 @@ const PortalController = class extends Controller {
             useSockJs:true
         });
         var self = this;
-        if (!this.connect) {
+        if (!portal_config.connect) {
             return 0;
         }
         this.ddpClient.connect(function(err,wasReconnect) {
@@ -106,9 +106,8 @@ const PortalController = class extends Controller {
 
     post_connect(params,callback) {
         var self = this;
-        self.connect = true;
+        portal_config.connect = true;
         this.connectToPortal(function() {
-            portal_config.connect = true;
             fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config), function(err) {
                 if (!err) {
                     callback({status:'ok'});
@@ -123,7 +122,6 @@ const PortalController = class extends Controller {
         var self = this;
         self.ddpClient.close();
         portal_config.connect = false;
-        self.connect = false;
         fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config), function(err) {
             if (!err) {
                 callback({status:'ok'});

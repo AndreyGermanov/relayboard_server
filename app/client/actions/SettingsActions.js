@@ -113,9 +113,7 @@ const SettingsActions = class {
     connectToPortal() {
         return (dispatch) => {
             Store.ddpClient.call('portal_post_connect', {delayed:true}, function(err,result) {
-                if (!err && result.status == 'ok') {
-
-                } else {
+                if (err || result.status != 'ok') {
                     if (err) {
                         errors['general'] = err;
                     } else if (result.status == 'error') {
