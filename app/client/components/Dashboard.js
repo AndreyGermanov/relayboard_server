@@ -7,7 +7,7 @@ const Dashboard = class extends Component {
         var relay_columns = this.props.relay_status.map(function(relay,index) {
             var command = 'ON',
                 color = 'red',
-                link = <span className="fa fa-power-off" style={{color:'gray'}}></span>
+                link = <span className="fa fa-power-off relay-cell-img" style={{color:'gray'}}></span>
             if (relay==1) {
                 command = 'OFF';
                 color = 'green';
