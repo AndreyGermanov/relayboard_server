@@ -11,9 +11,12 @@ var SerialReader = class extends EventEmitter {
         this.commands_queue = [];
         this.connected = false;
         this.current_relay_status = [];
-        this.current_relay_status_timestamp = [];
-        this.config = require('../../config/serial.js');
+        this.current_relay_status_timestamp = 0;
+        this.config = require('../../config/relayboard.js').default;
         this.on('request',this.processRequest.bind(this));
+        setInterval(this.tryConnect.bind(this),1000);
+        setInterval(this.handleCallbacks.bind(this),5000);
+        setInterval(this.sendCommandToSerial.bind(this),2000);
     }
 
     processRequest(request) {
@@ -34,6 +37,16 @@ var SerialReader = class extends EventEmitter {
             var command = this.commands_queue.shift();
             this.port.write(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
         };
+    }
+
+    isConnected() {
+        return Date.now() - this.current_relay_status_timestamp < 2000;
+    }
+
+    tryConnect() {
+        if (!this.isConnected()) {
+            this.run();
+        }
     }
 
     run(callback) {
@@ -60,23 +73,17 @@ var SerialReader = class extends EventEmitter {
                     delete self.requests_queue[request_id];
         	    } else {
                     string = string.split(' ');
-                    string.shift();
                     if (string[0] == 'STATUS') {
                         self.current_relay_status = string[1].split(',');
                         self.current_relay_status_timestamp = Date.now();
                     }
                 }
-    	    });
+            });
 	    })
-
-
 
         if (callback) {
             callback();
         }
-
-        setInterval(this.handleCallbacks.bind(this),5000);
-        setInterval(this.sendCommandToSerial.bind(this),2000);
     }
 
     handleCallbacks() {

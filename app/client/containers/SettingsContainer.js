@@ -5,12 +5,17 @@ import Store from '../store/Store';
 
 const mapStateToProps = (state) => {
     return {
+        serial_port: state.Settings.serial_port,
+        serial_baudrate: state.Settings.serial_baudrate,
+        pins: state.Settings.pins,
         host: state.Settings.host,
         port: state.Settings.port,
         login: state.Settings.login,
         password: state.Settings.password,
         errors: state.Settings.errors,
-        connected: state.Settings.connected
+        connected: state.Settings.connected,
+        serial_connected: state.Settings.serial_connected,
+        serial_errors: state.Settings.serial_errors
     }
 }
 
@@ -36,9 +41,37 @@ const mapDispatchToProps = (dispatch) => {
                 dispatch(actions.changePortalPasswordField(e.target.value))
             }
         },
+        onChangeSerialPortField: (e) => {
+            if (e.target && typeof(e.target) != 'undefined') {
+                dispatch(actions.changeSerialPortField(e.target.value));
+            }
+        },
+        onChangeSerialBaudrateField: (e) => {
+            if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
+                dispatch(actions.changeSerialBaudrateFied(e.target.value));
+            }
+        },
+        onChangePinNumberField: (e,id) => {
+            if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
+                dispatch(actions.changePinNumber(id,e.target.value));
+            }
+        },
+        onChangePinTypeField: (e,id) => {
+            if (e.target && typeof(e.target)!='undefined' & ['relay','sensor'].indexOf(e.target.value) !== -1) {
+                dispatch(actions.changePinType(id,e.target.value));
+            }
+        },
+        onChangePinTitleField: (e,id) => {
+            if (e.target && typeof(e.target) != 'undefined') {
+                dispatch(actions.changePinTitle(id,e.target.value));
+            }
+        },
         onSavePortalConnectionSettingsClick: (e) => {
             e.preventDefault();
             dispatch(actions.savePortalSettings(Store.store.getState().Settings));
+        },
+        onSaveSerialConnectionSettingsClick: (e) => {
+            e.preventDefault();
         },
         onConnectToPortalClick: (e) => {
             e.preventDefault();

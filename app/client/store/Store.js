@@ -45,9 +45,7 @@ const Store = class {
         try {
             this.ddpClient.call('getStatus', [], function (err, result) {
                 self.lastConnectTimestamp = Date.now();
-                if (err) {
-                }
-                if (result) {
+                if (typeof(result) == 'string') {
                     result = JSON.parse(result);
                 }
                 if (callback) {
