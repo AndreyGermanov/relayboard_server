@@ -51,35 +51,45 @@ var SerialReader = class extends EventEmitter {
 
     run(callback) {
 	    var self = this;
-        this.port = new SerialPort(this.config.port,{
-            baudRate: this.config.baudrate,
-            parser: SerialPort.parsers.readline("\n"),
-            encoding: 'utf8',
-            buffersize: 5100
-        }, function() {
-            self.port.on('close', function() {
-	            self.run();
-    	    });
-	
-    	    self.port.on('data',function(string) {
-		        string = string.trim();
-        	    var request_id = string.split(' ').shift();
-        	    if (self.requests_queue && self.requests_queue[request_id]) {
-		            string = string.split(' ');
-		            string.shift();
-                    var result = {};
-                    result[string.shift()] = string.join(' ');
-                    self.requests_queue[request_id].callback(result, request_id);
-                    delete self.requests_queue[request_id];
-        	    } else {
-                    string = string.split(' ');
-                    if (string[0] == 'STATUS') {
-                        self.current_relay_status = string[1].split(',');
-                        self.current_relay_status_timestamp = Date.now();
+        if (this.config.port) {
+            if (this.port) {
+                try {
+                    this.port.close();
+                } catch (e) {};
+            }
+            this.port = new SerialPort(this.config.port, {
+                baudRate: this.config.baudrate,
+                parser: SerialPort.parsers.readline("\n"),
+                encoding: 'utf8',
+                buffersize: 5100
+            }, function () {
+                self.port.on('close', function () {
+                    self.run();
+                });
+
+                self.port.on('data', function (string) {
+                    string = string.trim();
+                    var request_id = string.split(' ').shift();
+                    if (self.requests_queue && self.requests_queue[request_id]) {
+                        string = string.split(' ');
+                        string.shift();
+                        var result = {};
+                        result[string.shift()] = string.join(' ');
+                        self.requests_queue[request_id].callback(result, request_id);
+                        delete self.requests_queue[request_id];
+                    } else {
+                        string = string.split(' ');
+                        if (string.length>2) {
+                            string.shift();
+                        };
+                        if (string[0] == 'STATUS') {
+                            self.current_relay_status = string[1].split(',');
+                            self.current_relay_status_timestamp = Date.now();
+                        }
                     }
-                }
-            });
-	    })
+                });
+            })
+        }
 
         if (callback) {
             callback();

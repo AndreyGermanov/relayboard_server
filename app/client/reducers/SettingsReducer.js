@@ -46,10 +46,14 @@ const SettingsReducer = (state,action) => {
                 newState.serial_errors[i] = action.errors[i]
             }
         case actions.types.SET_CONNECTED_TO_PORTAL:
-            newState.connected = action.value;
+            if (action.value != newState.connected) {
+                newState.connected = action.value;
+            }
             break;
         case actions.types.SET_CONNECTED_TO_SERIAL:
-            newState.serial_connected = action.value;
+            if (action.value != newState.serial_connected) {
+                newState.serial_connected = action.value;
+            }
             break;
         case actions.types.APPLY_SETTINGS:
             newState.host = action.portal_config.host;

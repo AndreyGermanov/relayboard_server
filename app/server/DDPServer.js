@@ -19,7 +19,6 @@ const DDPServer = class extends EventEmitter {
         var self = this;
         var methods = {
             getStatus: (callback) => {
-                console.log(callback);
                 if (callback && typeof(callback) == 'function') {
                     callback(JSON.stringify({status:'ok',
                         result:self.application.serial.current_relay_status,

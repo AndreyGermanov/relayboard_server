@@ -71,6 +71,7 @@ const SettingsActions = class {
     changePinNumber(id,value) {
         return {
             type: this.types.CHANGE_PIN_NUMBER,
+            id: id,
             value: value
         }
     }
@@ -78,6 +79,7 @@ const SettingsActions = class {
     changePinType(id,value) {
         return {
             type: this.types.CHANGE_PIN_TYPE,
+            id: id,
             value: value
         }
     }
@@ -85,6 +87,7 @@ const SettingsActions = class {
     changePinTitle(id,value) {
         return {
             type: this.types.CHANGE_PIN_TITLE,
+            id: id,
             value: value
         }
     }
@@ -182,6 +185,79 @@ const SettingsActions = class {
             }
         }
     }
+
+    saveSerialSettings(form) {
+        var self = this;
+        return (dispatch) => {
+            var errors = {};
+            if (!form.serial_port) {
+                errors['serial_port'] = 'Port is required';
+            }
+            if (!form.serial_baudrate) {
+                errors['serial_baudrate'] = 'Baud rate is required';
+            }
+            if (form.serial_baudrate != parseInt(form.serial_baudrate)) {
+                errors['serial_baudrate'] = 'Baud rate must be integer value'
+            }
+            if (form.pins && form.pins.length) {
+                for (var i in form.pins) {
+
+                    var pin_number_error = null,
+                        pin_title_error = null,
+                        pin_type_error = null;
+
+                    if (!form.pins[i].number) {
+                        pin_number_error = 'Pin number is required';
+                    } else if (form.pins[i].number != parseInt(form.pins[i].number)) {
+                        pin_number_error = 'Pin number must be an integer value'
+                    } else if (_.filter(form.pins, {number: form.pins[i].number}).length > 1) {
+                        pin_number_error = 'Pin number bust be unique';
+                    }
+                    if (['relay', 'sensor'].indexOf(form.pins[i].type) == -1) {
+                        pin_type_error = 'Pin type must be either "relay" or "sensor"';
+                    }
+                    if (!form.pins[i].title.toString().trim()) {
+                        pin_title_error = 'Pin title is required';
+                    }
+
+                    if (pin_number_error || pin_title_error || pin_type_error) {
+                        if (!errors['pins']) {
+                            errors['pins'] = {};
+                        }
+                        ;
+                        if (!errors['pins'][i]) {
+                            errors['pins'][i] = {};
+                        }
+                        ;
+                        errors['pins'][i].number = pin_number_error;
+                        errors['pins'][i].type = pin_type_error
+                        errors['pins'][i].title = pin_title_error;
+                    }
+                }
+            }
+            if (_.toArray(errors).length>0) {
+                dispatch(this.setSerialErrorMessages(errors))
+            } else {
+                Store.ddpClient.call('serial_post_save', {
+                    port: form.serial_port,
+                    baudrate: form.serial_baudrate,
+                    pins: form.pins,
+                    delayed: true
+                }, function(err,result) {
+                    if (!err && result.status == 'ok') {
+
+                    } else {
+                        if (err) {
+                            errors['general'] = err;
+                        } else if (result.status == 'error') {
+                            errors['general'] = response.message;
+                        }
+                        dispatch(self.setSerialErrorMessages(errors));
+                    }
+                })
+            }
+        }
+    }
     
     connectToPortal() {
         return (dispatch) => {
@@ -254,7 +330,8 @@ const SettingsActions = class {
         var self = this;
         return (dispatch) => {
             Store.ddpClient.call('portal_get_status', {delayed:true}, function(err,result) {
-                if (!err && result.status == 'ok') {
+                var state = Store.store.getState().Settings;
+                if (!err && result.status == 'ok' && result.connected != state.connected) {
                     dispatch(self.setConnected(result.connected));
                 }
             })
@@ -265,7 +342,8 @@ const SettingsActions = class {
         var self = this;
         return (dispatch) => {
             Store.ddpClient.call('serial_get_status', {delayed:true}, function(err,result) {
-                if (!err && result.status == 'ok') {
+                var state = Store.store.getState().Settings;
+                if (!err && result.status == 'ok' && result.connected != state.serial_connected) {
                     dispatch(self.setSerialConnected(result.connected));
                 }
             })

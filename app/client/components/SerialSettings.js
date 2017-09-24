@@ -1,4 +1,5 @@
 import React,{Component} from 'react';
+import PinSettingsTable from './PinSettingsTable';
 
 const SerialSettings = class extends Component {
     render() {
@@ -13,38 +14,7 @@ const SerialSettings = class extends Component {
                 color: 'red'
             };
         }
-
-        var rows = this.props.pins.map(function(pin,index) {
-            var pin_relay_selected = pin.type == 'relay' ? 'selected="selected"' : null;
-            var pin_sensor_selected = pin.type == 'sensor' ? 'selected="selected"' : null;
-            return (
-                <tr key={"pin_row_"+index}>
-                    <td>
-                        <div className={fields['pins'][index].number.has_error_class}>
-                            <input key={'pin_'+index+'_number'} className='form-control'
-                            value={pin.number}
-                            onChange={this.props.onChangePinNumberField.bind(this,index)}/>
-                        </div>
-                    </td>
-                    <td>
-                        <div className={fields['pins'][index].type.has_error_class}>
-                            <select  className='form-control' value={pin.type} onChange={this.props.onChangePinTypeField.bind(this,index)}>
-                                <option value="relay">Relay</option>
-                                <option value="sensor">Sensor</option>
-                            </select>
-                        </div>
-                    </td>
-                    <td>
-                        <div className={fields['pins'][index].title.has_error_class}>
-                            <input  key={'pin_'+index+'_title'} className='form-control'
-                                value={pin.title}
-                                onChange={this.props.onChangePinTitleField.bind(this,index)}/>
-                        </div>
-                    </td>
-                </tr>
-            )
-        },this);
-
+        
         return (
             <div className="panel panel-blur" style={{flex:1}}>
                 <div className="panel-heading">
@@ -83,16 +53,7 @@ const SerialSettings = class extends Component {
                         </div>
                         <div className="row">
                             <h3>Pin map</h3>
-                            <table className="table table-bordered table-striped table-hover settings-table">
-                                <tbody>
-                                    <tr>
-                                        <th>Number</th>
-                                        <th>Type</th>
-                                        <th>Title</th>
-                                    </tr>
-                                    {rows}
-                                </tbody>
-                            </table>
+                            <PinSettingsTable {...this.props}/>
                         </div>
                     </form>
                 </div>
@@ -101,23 +62,6 @@ const SerialSettings = class extends Component {
     }
 
     prepareForm() {
-
-        var pins = this.props.pins.map(function() {
-            return {
-                number: {
-                    has_error_class: '',
-                    placeholder: 'Pin number'
-                },
-                type: {
-                    has_error_class: '',
-                    placeholder: 'Pin type'
-                },
-                title: {
-                    has_error_class: '',
-                    placeholder: 'Title'
-                }
-            }
-        });
 
         var fields = {
             serial_port: {
@@ -130,31 +74,31 @@ const SerialSettings = class extends Component {
             },
             general: {
                 message: ''
-            },
-            pins: pins
+            }
         };
 
-        if (this.props.errors['serial_port']) {
+        if (this.props.serial_errors['serial_port']) {
             fields['serial_port'] = {
                 has_error_class: 'has-error',
-                placeholder: this.props.errors['serial_port']
+                placeholder: this.props.serial_errors['serial_port']
             }
         }
 
-        if (this.props.errors['serial_baudrate']) {
+        if (this.props.serial_errors['serial_baudrate']) {
             fields['serial_baudrate'] = {
                 has_error_class: 'has-error',
-                placeholder: this.props.errors['serial_baudrate']
+                placeholder: this.props.serial_errors['serial_baudrate']
             }
         }
 
-        if (this.props.errors['general']) {
+        if (this.props.serial_errors['general']) {
             fields['general'] = {
-                message: this.props.errors['general']
+                message: this.props.serial_errors['general']
             }
         }
 
         this.fields = fields;
     }
 };
+
 export default SerialSettings;

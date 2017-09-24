@@ -17,11 +17,13 @@ const SerialController = class extends Controller {
     }
 
     post_save(params,callback) {
-        config.port = params.serial_port;
-        config.baudrate = params.serial_baudrate;
+        config.port = params.port;
+        config.baudrate = params.baudrate;
         config.pins = params.pins;
+        var self = this;
         fs.writeFile(__dirname+'/../../../config/relayboard.js','export default '+JSON.stringify(config), function(err) {
             if (!err) {
+                self.application.serial.run();
                 callback({status:'ok'});
             } else {
                 callback({status:'error',message:err})

@@ -51,19 +51,35 @@ const mapDispatchToProps = (dispatch) => {
                 dispatch(actions.changeSerialBaudrateFied(e.target.value));
             }
         },
-        onChangePinNumberField: (e,id) => {
+        onChangePinNumberField: (id,e) => {
             if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
                 dispatch(actions.changePinNumber(id,e.target.value));
             }
         },
-        onChangePinTypeField: (e,id) => {
+        onChangePinTypeField: (id,e) => {
             if (e.target && typeof(e.target)!='undefined' & ['relay','sensor'].indexOf(e.target.value) !== -1) {
                 dispatch(actions.changePinType(id,e.target.value));
             }
         },
-        onChangePinTitleField: (e,id) => {
+        onChangePinTitleField: (id,e) => {
             if (e.target && typeof(e.target) != 'undefined') {
                 dispatch(actions.changePinTitle(id,e.target.value));
+            }
+        },
+        onAddPinClick: (e) => {
+            e.preventDefault();
+            var state = Store.store.getState().Settings;
+            for (var i in state.pins) {
+                if (state.pins[i].number == 0) {
+                    return 0;
+                }
+            }
+            dispatch(actions.addPin());
+        },
+        onDeletePinClick: (id,e) => {
+            e.preventDefault();
+            if (confirm('Are you sure ?')) {
+                dispatch(actions.deletePin(id));
             }
         },
         onSavePortalConnectionSettingsClick: (e) => {
@@ -72,6 +88,7 @@ const mapDispatchToProps = (dispatch) => {
         },
         onSaveSerialConnectionSettingsClick: (e) => {
             e.preventDefault();
+            dispatch(actions.saveSerialSettings(Store.store.getState().Settings));
         },
         onConnectToPortalClick: (e) => {
             e.preventDefault();
