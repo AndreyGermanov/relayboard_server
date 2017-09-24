@@ -3,7 +3,7 @@ String request_id,command,argument;
 int stringIndex;
 int statuses[12];
 String pin_types[12] = {"0","0","0","0","0","0","0","0","0","0","0","0"};
-String tmp_array[12] = {"0","0","0","0","0","0","0","0","0","0","0","0"};;
+String tmp_array[12] = {"0","0","0","0","0","0","0","0","0","0","0","0"};
 
 void printStatuses() {
   Serial.print(request_id);
