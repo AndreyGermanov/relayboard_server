@@ -35,6 +35,7 @@ var SerialReader = class extends EventEmitter {
     sendCommandToSerial() {
         if (this.commands_queue.length) {
             var command = this.commands_queue.shift();
+            console.log(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
             this.port.write(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
         };
     }
@@ -84,6 +85,7 @@ var SerialReader = class extends EventEmitter {
                         };
                         if (string[0] == 'STATUS') {
                             self.current_relay_status = string[1].split(',');
+                            console.log(self.current_relay_status);
                             self.current_relay_status_timestamp = Date.now();
                         }
                     }
