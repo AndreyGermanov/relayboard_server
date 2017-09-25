@@ -21,7 +21,7 @@ const PinSettingsTable = class extends Component {
                             <select  className='form-control' value={pin.type}
                                      onChange={this.props.onChangePinTypeField.bind(this,index)}>
                                 <option value="relay">Relay</option>
-                                <option value="sensor">Sensor</option>
+                                <option value="temperature">Temperature sensor</option>
                             </select>
                         </div>
                     </td>

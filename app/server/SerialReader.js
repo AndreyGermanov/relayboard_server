@@ -1,6 +1,6 @@
-var SerialPort = require('serialport'),
-    EventEmitter = require('events').EventEmitter,
-    async = require('async');
+import SerialPort from 'serialport';
+import EventEmitter from 'events';
+import config from '../../config/relayboard';
 
 var SerialReader = class extends EventEmitter {
 
@@ -35,18 +35,36 @@ var SerialReader = class extends EventEmitter {
     sendCommandToSerial() {
         if (this.commands_queue.length) {
             var command = this.commands_queue.shift();
-            this.port.write(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
+            try {
+                this.port.write(command.request_id + ' ' + command.request_command + ' ' + command.request_arguments + "\n");
+            } catch(e) {};
         };
     }
 
     isConnected() {
-        return Date.now() - this.current_relay_status_timestamp < 2000;
+        return Date.now() - this.current_relay_status_timestamp < 5000;
     }
 
     tryConnect() {
         if (!this.isConnected()) {
             this.run();
+            this.current_relay_status_timestamp = Date.now();
         }
+    }
+
+    setConfig() {
+        var config_params = [];
+        for (var i in config.pins) {
+            config_params.push(config.pins[i].number+'|'+config.pins[i].type);
+        }
+        var request = {
+            request_id: 'local_config_' + Date.now(),
+            command: 'CONFIG',
+            arguments: config_params.join(','),
+            callback: () => {
+            }
+        };
+        this.emit('request',request);
     }
 
     run(callback) {
@@ -63,10 +81,7 @@ var SerialReader = class extends EventEmitter {
                 encoding: 'utf8',
                 buffersize: 5100
             }, function () {
-                self.port.on('close', function () {
-                    self.run();
-                });
-
+                self.setConfig();
                 self.port.on('data', function (string) {
                     string = string.trim();
                     var request_id = string.split(' ').shift();
@@ -75,15 +90,19 @@ var SerialReader = class extends EventEmitter {
                         string.shift();
                         var result = {};
                         result[string.shift()] = string.join(' ');
-                        self.requests_queue[request_id].callback(result, request_id);
+                        if (self.requests_queue[request_id].callback) {
+                            self.requests_queue[request_id].callback(result, request_id);
+                        }
                         delete self.requests_queue[request_id];
                     } else {
                         string = string.split(' ');
                         if (string.length>2) {
                             string.shift();
                         };
-                        if (string[0] == 'STATUS') {
+                        if (string[0] == 'STATUS' && string[1]) {
                             self.current_relay_status = string[1].split(',');
+                            self.current_relay_status_timestamp = Date.now();
+                        } else {
                             self.current_relay_status_timestamp = Date.now();
                         }
                     }

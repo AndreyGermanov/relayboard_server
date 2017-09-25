@@ -25,16 +25,6 @@ const SerialController = class extends Controller {
         fs.writeFile(__dirname+'/../../../config/relayboard.js','export default '+JSON.stringify(config), function(err) {
             if (!err) {
                 self.application.serial.run();
-                var config_params = [];
-                for (var i in config.pins) {
-                    config_params.push(config.pins[i].number+'|'+config.pins[i].type);
-                }
-                var request = {
-                    request_id: 'local_config_' + Date.now(),
-                    command: 'CONFIG',
-                    arguments: config.params.join(',')
-                }
-                self.emit('request',)
                 callback({status:'ok'});
             } else {
                 callback({status:'error',message:err})

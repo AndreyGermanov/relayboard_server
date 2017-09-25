@@ -7,6 +7,7 @@ import fetch from 'isomorphic-fetch';
 const mapStateToProps = (state) => {
     return {
         relay_status: state.Dashboard.relay_status,
+        relayboard_config: state.Settings.pins,
         online: state.Dashboard.online
     }
 }

@@ -57,7 +57,7 @@ const mapDispatchToProps = (dispatch) => {
             }
         },
         onChangePinTypeField: (id,e) => {
-            if (e.target && typeof(e.target)!='undefined' & ['relay','sensor'].indexOf(e.target.value) !== -1) {
+            if (e.target && typeof(e.target)!='undefined' & ['relay','temperature'].indexOf(e.target.value) !== -1) {
                 dispatch(actions.changePinType(id,e.target.value));
             }
         },

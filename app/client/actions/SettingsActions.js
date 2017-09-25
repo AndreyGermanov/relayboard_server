@@ -213,8 +213,8 @@ const SettingsActions = class {
                     } else if (_.filter(form.pins, {number: form.pins[i].number}).length > 1) {
                         pin_number_error = 'Pin number bust be unique';
                     }
-                    if (['relay', 'sensor'].indexOf(form.pins[i].type) == -1) {
-                        pin_type_error = 'Pin type must be either "relay" or "sensor"';
+                    if (['relay', 'temperature'].indexOf(form.pins[i].type) == -1) {
+                        pin_type_error = 'Incorrect type';
                     }
                     if (!form.pins[i].title.toString().trim()) {
                         pin_title_error = 'Pin title is required';

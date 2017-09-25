@@ -2,6 +2,7 @@ import React,{Component} from "react";
 import { Route } from 'react-router';
 import { HashRouter,Link } from 'react-router-dom';
 import Settings from '../containers/SettingsContainer';
+import actions from '../actions/SettingsActions';
 import Dashboard from '../containers/DashboardContainer';
 import {Provider} from 'react-redux';
 import Store from '../store/Store';
@@ -39,6 +40,12 @@ var App = class extends Component {
                 </HashRouter>
             </Provider>
         )
+    }
+
+    componentDidMount() {
+        while (!Store.isDDPClientConnected()) {
+        }
+        Store.store.dispatch(actions.getSettings());
     }
 }
 
