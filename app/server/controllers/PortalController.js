@@ -70,8 +70,10 @@ const PortalController = class extends Controller {
                                     if (callback) {
                                         self.connected = true;
                                         self.lastPortalResponseTime = Date.now();
-                                        callback({status:'ok'});
-                                        self.registerEvents();
+                                        self.ddpClient.call('updateRelayBoardConfig',[{id:self.application.relayboard_id,config:config}],() => {
+                                            callback({status:'ok'});
+                                            self.registerEvents();
+                                        });
                                     }
                                 }
                             })

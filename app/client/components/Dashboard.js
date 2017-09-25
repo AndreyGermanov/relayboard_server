@@ -47,7 +47,6 @@ const Dashboard = class extends Component {
                         <div>
                             <h3><span style={{color:'yellow'}}><span className="ion-android-sunny"/>&nbsp;{temperature} C</span></h3>
                             <h3><span style={{color:'cyan'}}><span className="fa fa-tint"/>&nbsp;{humidity} %</span></h3>
-
                         </div>
                         <div>
                             {this.props.relayboard_config[index].title}
