@@ -27,7 +27,6 @@ const Settings = class extends Component {
         while (!Store.isDDPClientConnected()) {
         }
         Store.store.dispatch(actions.getSettings());
-        console.log("GOT SETTINGS");
         setInterval(function() {
             Store.store.dispatch(actions.getPortalStatus());
             Store.store.dispatch(actions.getSerialStatus());
