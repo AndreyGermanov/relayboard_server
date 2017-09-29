@@ -22,8 +22,8 @@ var Application = class extends EventEmitter {
                     self.ddp.run();
                 });
             });
-        })
+        });
     }
-}
+};
 
 export default Application;

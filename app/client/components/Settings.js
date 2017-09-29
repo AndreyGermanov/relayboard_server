@@ -7,6 +7,7 @@ import SerialSettings from './SerialSettings';
 const Settings = class extends Component {
     render() {
         return (
+            /*jshint ignore:start */
             <div>
                 <div className="content-top clearfix">
                     <h1 className="al-title">Settings</h1>
@@ -18,12 +19,15 @@ const Settings = class extends Component {
                         <PortalSettings {...this.props}/>
                     </div>
             </div>
-        )
+            /*jshint ignore:end */
+        );
     }
 
     componentDidMount() {
         while (!Store.isDDPClientConnected()) {
         }
+        Store.store.dispatch(actions.getSettings());
+        console.log("GOT SETTINGS");
         setInterval(function() {
             Store.store.dispatch(actions.getPortalStatus());
             Store.store.dispatch(actions.getSerialStatus());

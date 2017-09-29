@@ -1,6 +1,5 @@
 import Controller from './Controller';
 import ddpClient from 'ddp';
-import config from '../../../config/relayboard';
 import portal_config from '../../../config/portal';
 import fs from 'fs';
 import _ from 'lodash';
@@ -60,6 +59,8 @@ const PortalController = class extends Controller {
                                 callback({status: 'error', message: 'Login error'})
                             }
                         } else {
+                            var config = self.application.serial.config;
+                            config.pins = _.orderBy(config.pins,['number'],['asc']);
                             self.ddpClient.call('registerRelayBoard',[{id:self.application.relayboard_id,options:config}],(err) => {
                                 if (err) {
                                     if (callback) {
@@ -70,7 +71,12 @@ const PortalController = class extends Controller {
                                     if (callback) {
                                         self.connected = true;
                                         self.lastPortalResponseTime = Date.now();
-                                        self.ddpClient.call('updateRelayBoardConfig',[{id:self.application.relayboard_id,config:config}],() => {
+                                        self.ddpClient.call('updateRelayBoardConfig',[
+                                            {
+                                                id:self.application.relayboard_id,
+                                                config:config,
+                                                lastConfigUpdateTime: self.application.serial.lastConfigUpdateTime
+                                            }],() => {
                                             callback({status:'ok'});
                                             self.registerEvents();
                                         });
@@ -172,6 +178,17 @@ const PortalController = class extends Controller {
                                 }
                                 self.emit('request',command);
                             }
+                        }
+                        if (result.lastConfigUpdateTime && result.lastConfigUpdateTime < self.application.serial.lastConfigUpdateTime) {
+                            var config = self.application.serial.config;
+                            config.pins = _.orderBy(config.pins,['number'],['asc']);
+                            self.ddpClient.call('updateRelayBoardConfig',[
+                                {
+                                    id:self.application.relayboard_id,
+                                    config:config,
+                                    lastConfigUpdateTime: self.application.serial.lastConfigUpdateTime
+                                }],() => {
+                            });
                         }
                     }
                 }

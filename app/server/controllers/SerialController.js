@@ -10,7 +10,7 @@ const SerialController = class extends Controller {
     }
 
     get_settings(params,callback) {
-        callback({status: 'ok', config: config, connected: this.application.serial.isConnected()})
+        callback({status: 'ok', config: this.application.serial.config, connected: this.application.serial.isConnected()})
     }
 
     get_status(params,callback) {
@@ -19,11 +19,13 @@ const SerialController = class extends Controller {
 
     post_save(params,callback) {
         config.port = params.port;
-        config.baudrate = params.baudrate;
-        config.pins = params.pins;
+        config.baudrate = parseInt(params.baudrate);
+        config.pins = _.orderBy(params.pins,['number'],['asc']);
         var self = this;
         fs.writeFile(__dirname+'/../../../config/relayboard.js','export default '+JSON.stringify(config), function(err) {
             if (!err) {
+                self.application.serial.config = config;
+                self.application.serial.lastConfigUpdateTime = Date.now();
                 self.application.serial.run();
                 callback({status:'ok'});
             } else {

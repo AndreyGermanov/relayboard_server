@@ -15,18 +15,17 @@ void printStatuses() {
     }
   Serial.print("STATUS ");
   for (int i=0;i<12;i++) {
-    if (pin_types[i] == "relay") {
+    if (pin_types[i] == "1") {
       Serial.print(statuses[i]);
-    } else if (pin_types[i] == "temperature") {
+      Serial.print(",");
+    } else if (pin_types[i] == "2") {
       Serial.print(dht.getTemperature());
       Serial.print("|");
       Serial.print(dht.getHumidity());
+      Serial.print(",");
     }
     if (i==11) {
       break;
-    };
-    if (pin_types[i] != "0" && pin_types[i+1] != "0") {
-      Serial.print(",");
     };
   }
   Serial.println();
@@ -76,14 +75,18 @@ void setPinConfig(String config) {
   split(config,",");
   String pin_config[12] = tmp_array;
   for (int i=0;i<12;i++) {
+    pin_types[i] = "0";
+  }
+  for (int i=0;i<12;i++) {
     pin_config[i].trim();
     if (pin_config[i] != "0" && pin_config[i] != "") {
       split(pin_config[i],"|");
       pin_types[tmp_array[0].toInt()-1] = tmp_array[1];
-      if (tmp_array[1] == "temperature") {
+      if (tmp_array[1] == "2") {
         dht.setup(tmp_array[0].toInt());
       }
     }
+
   }
 }
 
@@ -109,7 +112,6 @@ void loop()
       } else if (command == "OFF") {
         switchRelay(argument.toInt(),HIGH);
       } else if (command == "CONFIG") {
-        Serial.print("SET PIN CONFIG");
         setPinConfig(argument);
       }
     }

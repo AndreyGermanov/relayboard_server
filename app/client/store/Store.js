@@ -51,10 +51,11 @@ const Store = class {
                 if (callback) {
                     callback(result.result);
                 }
-            })
+            });
         } catch (e) {
+            console.log(e);
         }
     }
-}
+};
 
 export default new Store();

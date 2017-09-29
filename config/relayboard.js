@@ -1,1 +1,1 @@
-export default {"port":"/dev/ttyUSB2","baudrate":9600,"pins":[{"number":6,"title":"Movement sensor","type":"sensor"},{"number":7,"title":"Lamp","type":"relay"}]}
+export default {"port":"/dev/ttyUSB0","baudrate":9600,"pins":[{"number":2,"type":"relay","title":"Water Pump"},{"number":6,"title":"Temperature","type":"temperature"},{"number":7,"title":"Lamp","type":"relay"}]}

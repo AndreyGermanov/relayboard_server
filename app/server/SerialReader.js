@@ -1,6 +1,5 @@
 import SerialPort from 'serialport';
 import EventEmitter from 'events';
-import config from '../../config/relayboard';
 
 var SerialReader = class extends EventEmitter {
 
@@ -13,6 +12,7 @@ var SerialReader = class extends EventEmitter {
         this.current_relay_status = [];
         this.current_relay_status_timestamp = 0;
         this.config = require('../../config/relayboard.js').default;
+        this.lastConfigUpdateTime = Date.now();
         this.on('request',this.processRequest.bind(this));
         setInterval(this.tryConnect.bind(this),1000);
         setInterval(this.handleCallbacks.bind(this),5000);
@@ -54,8 +54,17 @@ var SerialReader = class extends EventEmitter {
 
     setConfig() {
         var config_params = [];
-        for (var i in config.pins) {
-            config_params.push(config.pins[i].number+'|'+config.pins[i].type);
+        for (var i in this.config.pins) {
+            var type = null;
+            switch (this.config.pins[i].type) {
+                case 'relay':
+                    type = 1;
+                    break;
+                case 'temperature':
+                    type = 2;
+                    break;
+            }
+            config_params.push(this.config.pins[i].number+'|'+type);
         }
         var request = {
             request_id: 'local_config_' + Date.now(),
@@ -78,8 +87,7 @@ var SerialReader = class extends EventEmitter {
             this.port = new SerialPort(this.config.port, {
                 baudRate: this.config.baudrate,
                 parser: SerialPort.parsers.readline("\n"),
-                encoding: 'utf8',
-                buffersize: 5100
+                encoding: 'utf8'
             }, function () {
                 self.setConfig();
                 self.port.on('data', function (string) {
@@ -101,10 +109,9 @@ var SerialReader = class extends EventEmitter {
                         };
                         if (string[0] == 'STATUS' && string[1]) {
                             self.current_relay_status = string[1].split(',');
+                            self.current_relay_status.pop();
                             self.current_relay_status_timestamp = Date.now();
-                        } else {
-                            self.current_relay_status_timestamp = Date.now();
-                        }
+                        };
                     }
                 });
             })

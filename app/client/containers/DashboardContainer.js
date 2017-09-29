@@ -9,8 +9,8 @@ const mapStateToProps = (state) => {
         relay_status: state.Dashboard.relay_status,
         relayboard_config: state.Settings.pins,
         online: state.Dashboard.online
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch) => {
     return {
@@ -18,8 +18,8 @@ const mapDispatchToProps = (dispatch) => {
             Store.ddpClient.call('switchRelay',[{number:number,command:command}],function(err,result) {
             });
         }
-    }
-}
+    };
+};
 
 const DashboardContainer = connect(mapStateToProps,mapDispatchToProps)(Dashboard);
 

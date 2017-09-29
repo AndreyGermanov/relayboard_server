@@ -8,7 +8,7 @@ const RootReducer = (state,action) => {
         state = {
             Settings: {},
             Dashboard: {}
-        }
+        };
     }
 
     var newState = _.cloneDeep(state);
@@ -16,6 +16,6 @@ const RootReducer = (state,action) => {
     newState.Settings = SettingsReducer(state.Settings,action);
     newState.Dashboard = DashboardReducer(state.Dashboard,action);
     return newState;
-}
+};
 
 export default RootReducer;

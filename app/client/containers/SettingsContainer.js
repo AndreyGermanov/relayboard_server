@@ -16,29 +16,29 @@ const mapStateToProps = (state) => {
         connected: state.Settings.connected,
         serial_connected: state.Settings.serial_connected,
         serial_errors: state.Settings.serial_errors
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch) => {
     return {
         onChangeHostField: (e) => {
             if (e.target && typeof(e.target)!='undefined') {
-                dispatch(actions.changePortalHostField(e.target.value))
+                dispatch(actions.changePortalHostField(e.target.value));
             }
         },
         onChangePortField: (e) => {
             if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
-                dispatch(actions.changePortalPortField(e.target.value))
+                dispatch(actions.changePortalPortField(e.target.value));
             }
         },
         onChangeLoginField: (e) => {
             if (e.target && typeof(e.target)!='undefined') {
-                dispatch(actions.changePortalLoginField(e.target.value))
+                dispatch(actions.changePortalLoginField(e.target.value));
             }
         },
         onChangePasswordField: (e) => {
             if (e.target && typeof(e.target)!='undefined') {
-                dispatch(actions.changePortalPasswordField(e.target.value))
+                dispatch(actions.changePortalPasswordField(e.target.value));
             }
         },
         onChangeSerialPortField: (e) => {
@@ -98,8 +98,8 @@ const mapDispatchToProps = (dispatch) => {
                 dispatch(actions.disconnectFromPortal());
             }
         }
-    }
-}
+    };
+};
 
 const SettingsContainer = connect(mapStateToProps,mapDispatchToProps)(Settings);
 

@@ -16,6 +16,7 @@ const SerialSettings = class extends Component {
         }
         
         return (
+            /*jshint ignore:start */
             <div className="panel panel-blur" style={{flex:1}}>
                 <div className="panel-heading">
                     <h3 className="panel-title" style={connectedStyle}>
@@ -58,7 +59,8 @@ const SerialSettings = class extends Component {
                     </form>
                 </div>
             </div>
-        )
+            /*jshint ignore:end */
+        );
     }
 
     prepareForm() {
@@ -77,24 +79,24 @@ const SerialSettings = class extends Component {
             }
         };
 
-        if (this.props.serial_errors['serial_port']) {
-            fields['serial_port'] = {
+        if (this.props.serial_errors.serial_port) {
+            fields.serial_port = {
                 has_error_class: 'has-error',
-                placeholder: this.props.serial_errors['serial_port']
-            }
+                placeholder: this.props.serial_errors.serial_port
+            };
         }
 
-        if (this.props.serial_errors['serial_baudrate']) {
-            fields['serial_baudrate'] = {
+        if (this.props.serial_errors.serial_baudrate) {
+            fields.serial_baudrate = {
                 has_error_class: 'has-error',
-                placeholder: this.props.serial_errors['serial_baudrate']
-            }
+                placeholder: this.props.serial_errors.serial_baudrate
+            };
         }
 
-        if (this.props.serial_errors['general']) {
-            fields['general'] = {
-                message: this.props.serial_errors['general']
-            }
+        if (this.props.serial_errors.general) {
+            fields.general = {
+                message: this.props.serial_errors.general
+            };
         }
 
         this.fields = fields;

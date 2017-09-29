@@ -4,7 +4,9 @@ var gulp = require('gulp'),
     glob = require('glob'),
     source = require('vinyl-source-stream'),
     connect = require('gulp-connect'),
-    server = require('gulp-develop-server');
+    server = require('gulp-develop-server'),
+    jshint = require('gulp-jshint');
+
 
 function get_files(path,callback) {
     glob(path, function(err, files) {
@@ -27,6 +29,14 @@ gulp.task('bundle', function() {
             .bundle()
             .pipe(source('app.min.js'))
             .pipe(gulp.dest('./public/js'))
+    })
+})
+
+gulp.task('lint', function() {
+    return get_files('./app/**/*.*', function (files) {
+        return gulp.src(files)
+            .pipe(jshint())
+            .pipe(jshint.reporter('default'))
     })
 })
 

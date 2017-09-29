@@ -7,22 +7,25 @@ const Dashboard = class extends Component {
         var relay_columns = this.props.relay_status.map(function(relay,index) {
             if (this.props.relayboard_config[index].type == 'relay') {
                 var command = 'ON',
-                    color = 'red',
-                    link = <span className="fa fa-power-off relay-cell-img" style={{color:'gray'}}></span>
+                    color = 'red';
+                    /*jshint ignore:start */
+                var link = <span className="fa fa-power-off relay-cell-img" style={{color:'gray'}}></span>
+                    /*jshint ignore:end */
                 if (relay == 1) {
                     command = 'OFF';
                     color = 'green';
                 }
-                ;
                 if (this.props.online) {
+                    /*jshint ignore:start */
                     link = <a key={'link_'+index}
                               onClick={this.props.onRelayClick.bind(this,command,this.props.relayboard_config[index].number)}>
                         <span key={'img_'+index} className="fa fa-power-off relay-cell-img"
                               style={{color:color}}></span>
                     </a>
+                    /*jshint ignore:end */
                 }
-                ;
                 return (
+                    /*jshint ignore:start */
                     <td key={'column_'+index} className="relay-cell">
                         <div className='relay-cell-text'>
                             {this.props.relayboard_config[index].number}
@@ -34,12 +37,14 @@ const Dashboard = class extends Component {
                             {this.props.relayboard_config[index].title}
                         </div>
                     </td>
-                )
+                    /*jshint ignore:end */
+                );
             } else {
                 relay = relay.split('|');
                 var temperature = relay.shift(),
                     humidity = relay.pop();
                 return (
+                    /*jshint ignore:start */
                     <td key={'column_'+index} className="relay-cell">
                         <div className='relay-cell-text'>
                             {this.props.relayboard_config[index].number}
@@ -52,13 +57,13 @@ const Dashboard = class extends Component {
                             {this.props.relayboard_config[index].title}
                         </div>
                     </td>
-                )
-
-
+                    /*jshint ignore:end */
+                );
             }
         },this);
 
         return (
+            /*jshint ignore:start */
             <div>
                 <div className="content-top clearfix">
                     <h1 className="al-title">Dashboard</h1>
@@ -81,18 +86,19 @@ const Dashboard = class extends Component {
                     </div>
                 </div>
             </div>
-        )
+            /*jshint ignore:end */
+        );
     }
 
     componentDidMount() {
         this.statusUpdateInterval = setInterval(function() {
-            Store.store.dispatch(actions.getRelayStatuses())
+            Store.store.dispatch(actions.getRelayStatuses());
         }, 1000);
     }
 
     componentWillUnmount() {
         clearInterval(this.statusUpdateInterval);
     }
-}
+};
 
 export default Dashboard;

@@ -5,7 +5,7 @@ const DashboardReducer = (state,action) => {
         state = {
             relay_status: [],
             online: false
-        }
+        };
     }
     var newState = _.cloneDeep(state);
 
@@ -14,11 +14,11 @@ const DashboardReducer = (state,action) => {
             newState.relay_status = action.status;
             break;
         case 'SET_ONLINE':
-            newState.online = action.online
+            newState.online = action.online;
             break;
     }
 
     return newState;
-}
+};
 
 export default DashboardReducer;

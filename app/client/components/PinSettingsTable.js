@@ -6,6 +6,7 @@ const PinSettingsTable = class extends Component {
         var fields = this.fields;
         var rows = this.props.pins.map(function(pin,index) {
             return (
+                /*jshint ignore:start */
                 <tr key={"pin_row_"+index}>
                     <td>
                         <div className={fields['pins'][index].number.has_error_class}>
@@ -40,10 +41,12 @@ const PinSettingsTable = class extends Component {
                         </button>
                     </td>
                 </tr>
-            )
+                /*jshint ignore:end */
+            );
         },this);
 
         return (
+            /*jshint ignore:start */
             <table className="table table-bordered table-striped table-hover settings-table">
                 <tbody>
                 <tr>
@@ -62,6 +65,7 @@ const PinSettingsTable = class extends Component {
                 </tr>
                 </tbody>
             </table>
+            /*jshint ignore:end */
         );
     }
 

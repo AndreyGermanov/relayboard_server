@@ -9,6 +9,7 @@ import Store from '../store/Store';
 var App = class extends Component {
     render() {
         return (
+            /*jshint ignore:start */
             <Provider store={Store.store}>
                 <HashRouter>
                 <main>
@@ -39,7 +40,8 @@ var App = class extends Component {
                 </main>
                 </HashRouter>
             </Provider>
-        )
+            /*jshint ignore:end */
+        );
     }
 
     componentDidMount() {
@@ -47,6 +49,6 @@ var App = class extends Component {
         }
         Store.store.dispatch(actions.getSettings());
     }
-}
+};
 
 export default App;

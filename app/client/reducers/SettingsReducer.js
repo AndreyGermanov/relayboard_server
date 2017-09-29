@@ -15,7 +15,7 @@ const SettingsReducer = (state,action) => {
             pins: [],
             serial_connected: false,
             serial_errors: {}
-        }
+        };
     }
     var newState = _.cloneDeep(state);
 
@@ -42,9 +42,10 @@ const SettingsReducer = (state,action) => {
             break;
         case actions.types.SET_SERIAL_FORM_ERROR_MESSAGES:
             newState.serial_errors = {};
-            for (var i in action.errors) {
-                newState.serial_errors[i] = action.errors[i]
+            for (i in action.errors) {
+                newState.serial_errors[i] = action.errors[i];
             }
+            break;
         case actions.types.SET_CONNECTED_TO_PORTAL:
             if (action.value != newState.connected) {
                 newState.connected = action.value;
@@ -56,13 +57,17 @@ const SettingsReducer = (state,action) => {
             }
             break;
         case actions.types.APPLY_SETTINGS:
-            newState.host = action.portal_config.host;
-            newState.port = action.portal_config.port;
-            newState.login = action.portal_config.login;
-            newState.password = action.portal_config.password;
-            newState.serial_port = action.serial_config.port;
-            newState.serial_baudrate = action.serial_config.baudrate;
-            newState.pins = action.serial_config.pins;
+            if (action.portal_config) {
+                newState.host = action.portal_config.host;
+                newState.port = action.portal_config.port;
+                newState.login = action.portal_config.login;
+                newState.password = action.portal_config.password;
+            }
+            if (action.serial_config) {
+                newState.serial_port = action.serial_config.port;
+                newState.serial_baudrate = action.serial_config.baudrate;
+                newState.pins = action.serial_config.pins;
+            }
             break;
         case actions.types.CHANGE_SERIAL_PORT_FIELD:
             newState.serial_port = action.value;

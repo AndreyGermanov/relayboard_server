@@ -15,6 +15,7 @@ const PortalSettings = class extends Component {
             connectButtonName = 'Connect';
         }
         return (
+            /*jshint ignore:start */
             <div className="panel panel-blur" style={{flex:1}}>
                 <div className="panel-heading">
                     <h3 className="panel-title" style={connectedStyle}>
@@ -74,7 +75,8 @@ const PortalSettings = class extends Component {
                     </form>
                 </div>
             </div>
-        )
+            /*jshint ignore:end */
+        );
     }
 
     prepareForm() {
@@ -107,42 +109,43 @@ const PortalSettings = class extends Component {
             }
         };
 
-        if (this.props.errors['host']) {
-            fields['host'] = {
+        if (this.props.errors.host) {
+            fields.host = {
                 has_error_class: 'has-error',
-                placeholder: this.props.errors['host']
-            }
+                placeholder: this.props.errors.host
+            };
         }
 
-        if (this.props.errors['port']) {
-            fields['port'] = {
+        if (this.props.errors.port) {
+            fields.port = {
                 has_error_class: 'has-error',
-                placeholder: this.props.errors['port']
-            }
+                placeholder: this.props.errors.port
+            };
         }
 
-        if (this.props.errors['login']) {
-            fields['login'] = {
+        if (this.props.errors.login) {
+            fields.login = {
                 has_error_class: 'has-error',
-                placeholder: this.props.errors['login']
-            }
+                placeholder: this.props.errors.login
+            };
         }
 
-        if (this.props.errors['password']) {
-            fields['password'] = {
+        if (this.props.errors.password) {
+            fields.password = {
                 has_error_class: 'has-error',
-                placeholder: this.props.errors['password']
-            }
+                placeholder: this.props.errors.password
+            };
         }
 
-        if (this.props.errors['general']) {
-            fields['general'] = {
-                message: this.props.errors['general']
-            }
+        if (this.props.errors.general) {
+            fields.general = {
+                message: this.props.errors.general
+            };
         }
 
         this.fields = fields;
 
     }
 };
+
 export default PortalSettings;
