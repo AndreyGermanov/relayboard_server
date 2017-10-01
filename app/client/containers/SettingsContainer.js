@@ -5,6 +5,7 @@ import Store from '../store/Store';
 
 const mapStateToProps = (state) => {
     return {
+        title: state.Settings.title,
         serial_port: state.Settings.serial_port,
         serial_baudrate: state.Settings.serial_baudrate,
         pins: state.Settings.pins,
@@ -39,6 +40,11 @@ const mapDispatchToProps = (dispatch) => {
         onChangePasswordField: (e) => {
             if (e.target && typeof(e.target)!='undefined') {
                 dispatch(actions.changePortalPasswordField(e.target.value));
+            }
+        },
+        onChangeTitleField: (e) => {
+            if (e.target && typeof(e.target) != 'undefined') {
+                dispatch(actions.changeTitleField(e.target.value));
             }
         },
         onChangeSerialPortField: (e) => {

@@ -20,6 +20,7 @@ const SerialController = class extends Controller {
     post_save(params,callback) {
         config.port = params.port;
         config.baudrate = parseInt(params.baudrate);
+        config.title = params.title ? params.title : this.application.relayboard_id;
         config.pins = _.orderBy(params.pins,['number'],['asc']);
         var self = this;
         fs.writeFile(__dirname+'/../../../config/relayboard.js','export default '+JSON.stringify(config), function(err) {

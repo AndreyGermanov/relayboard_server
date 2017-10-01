@@ -35,6 +35,15 @@ const SerialSettings = class extends Component {
                         {this.props.errors['general']}
                     </div>
                     <form className="form form-horizontal">
+                        <div className={"form-group "+fields['title'].has_error_class}>
+                            <label className="control-label col-sm-2" htmlFor="title">Name:</label>
+                            <div className="col-sm-10">
+                                <input className="form-control" id="title"
+                                       placeholder={fields['title'].placeholder}
+                                       value={this.props.title}
+                                       onChange={this.props.onChangeTitleField.bind(this)}/>
+                            </div>
+                        </div>
                         <div className={"form-group "+fields['serial_port'].has_error_class}>
                             <label className="control-label col-sm-2" htmlFor="serial_port">Port:</label>
                             <div className="col-sm-10">
@@ -74,6 +83,10 @@ const SerialSettings = class extends Component {
                 has_error_class: '',
                 placeholder: 'Baud rate'
             },
+            title: {
+                has_error_class: '',
+                placeholder: 'Title'
+            },
             general: {
                 message: ''
             }
@@ -93,6 +106,13 @@ const SerialSettings = class extends Component {
             };
         }
 
+        if (this.props.serial_errors.title) {
+            fields.title = {
+                has_error_class: 'has-error',
+                placeholder: this.props.serial_errors.title
+            };
+        }
+        
         if (this.props.serial_errors.general) {
             fields.general = {
                 message: this.props.serial_errors.general

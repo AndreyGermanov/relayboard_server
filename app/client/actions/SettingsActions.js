@@ -10,6 +10,7 @@ const SettingsActions = class {
             CHANGE_PORTAL_PORT_FIELD: 'CHANGE_PORTAL_PORT_FIELD',
             CHANGE_PORTAL_LOGIN_FIELD: 'CHANGE_PORTAL_LOGIN_FIELD',
             CHANGE_PORTAL_PASSWORD_FIELD: 'CHANGE_PORTAL_PASSWORD_FIELD',
+            CHANGE_TITLE_FIELD: 'CHANGE_TITLE_FIELD',
             CHANGE_SERIAL_PORT_FIELD: 'CHANGE_SERIAL_PORT_FIELD',
             CHANGE_SERIAL_BAUDRATE_FIELD: 'CHANGE_SERIAL_BAUDRATE_FIELD',
             CHANGE_PIN_NUMBER: 'CHANGE_PIN_NUMBER',
@@ -50,6 +51,13 @@ const SettingsActions = class {
     changePortalPasswordField(value) {
         return {
             type: this.types.CHANGE_PORTAL_PASSWORD_FIELD,
+            value: value
+        };
+    }
+
+    changeTitleField(value) {
+        return {
+            type: this.types.CHANGE_TITLE_FIELD,
             value: value
         };
     }
@@ -196,6 +204,9 @@ const SettingsActions = class {
             if (!form.serial_baudrate) {
                 errors.serial_baudrate = 'Baud rate is required';
             }
+            if (!form.title) {
+                errors.title = 'Relayboard name is required';
+            }
             if (form.serial_baudrate != parseInt(form.serial_baudrate)) {
                 errors.serial_baudrate = 'Baud rate must be integer value';
             } else {
@@ -240,6 +251,7 @@ const SettingsActions = class {
             } else {
                 Store.ddpClient.call('serial_post_save', {
                     port: form.serial_port,
+                    title: form.title,
                     baudrate: form.serial_baudrate,
                     pins: form.pins,
                     delayed: true

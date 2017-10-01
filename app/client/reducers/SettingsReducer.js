@@ -10,6 +10,7 @@ const SettingsReducer = (state,action) => {
             password: '',
             errors: {},
             connected: false,
+            title: '',
             serial_port: '',
             serial_baudrate: '',
             pins: [],
@@ -64,10 +65,14 @@ const SettingsReducer = (state,action) => {
                 newState.password = action.portal_config.password;
             }
             if (action.serial_config) {
+                newState.title = action.serial_config.title;
                 newState.serial_port = action.serial_config.port;
                 newState.serial_baudrate = action.serial_config.baudrate;
                 newState.pins = action.serial_config.pins;
             }
+            break;
+        case actions.types.CHANGE_TITLE_FIELD:
+            newState.title = action.value;
             break;
         case actions.types.CHANGE_SERIAL_PORT_FIELD:
             newState.serial_port = action.value;
