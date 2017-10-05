@@ -9,7 +9,7 @@ const PortalController = class extends Controller {
         super(application);
         this.ddpClient = null;
         this.statusInterval = null;
-        this.pollStatusPeriod = 5000;
+        this.pollStatusPeriod = 1000;
         this.pollConnectionStatusPeriod = 10000;
         this.lastPortalResponseTime = Date.now();
         this.command_responses = {};
@@ -142,7 +142,7 @@ const PortalController = class extends Controller {
     registerEvents() {
         if (this.isConnected()) {
             this.removeAllListeners('request');
-            this.on('request',this.application.serial.processRequest.bind(this.application.serial));
+            this.on('serial_request',this.application.serial.processRequest.bind(this.application.serial));
         }
         if (this.statusInterval) {
             clearInterval(this.statusInterval);
@@ -155,11 +155,15 @@ const PortalController = class extends Controller {
         if (this.isConnected()) {
             var command_responses = _.cloneDeep(self.command_responses);
             self.command_responses = {};
+            var send_buffer = false;
+            if (self.application.terminal.buffer && self.application.terminal.buffer.length) {
+                send_buffer = true;
+            };
             self.ddpClient.call('updateRelayBoardStatus',
                 [{id:self.application.relayboard_id,
                     status:self.application.serial.current_relay_status,
                     timestamp: self.application.serial.current_relay_status_timestamp,
-                    command_responses:command_responses}],(err,result) => {
+                    command_responses:command_responses,terminal_buffer:self.application.terminal.buffer}],(err,result) => {
                 if (!err) {
                     if (result) {
                         try {
@@ -167,16 +171,22 @@ const PortalController = class extends Controller {
                         } catch (e) {};
                     }
                     if (result.status == 'ok') {
+                        if (send_buffer) {
+                            self.application.terminal.buffer = [];
+                        };
                         self.lastPortalResponseTime = Date.now();
                         if (result.commands) {
                             for (var i in result.commands) {
                                 var command = result.commands[i];
-                                command.request_type = 'remote';
                                 command.timestamp = Date.now();
                                 command.callback = function(response,request_id) {
                                     self.command_responses[request_id] = response;
                                 }
-                                self.emit('request',command);
+                                if (command.request_type == 'serial') {
+                                    self.emit('serial_request', command);
+                                } else if (command.request_type == 'terminal') {
+                                    self.application.terminal.processRequest(command.command);
+                                }
                             }
                         }
                         if (result.lastConfigUpdateTime && result.lastConfigUpdateTime < self.application.serial.lastConfigUpdateTime) {

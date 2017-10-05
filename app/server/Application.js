@@ -1,6 +1,7 @@
 import SerialReader from './SerialReader.js';
 import WebServer from './WebServer.js';
 import DDPServer from './DDPServer.js';
+import TerminalSession from './TerminalSession';
 import {EventEmitter} from 'events';
 import getmac from 'getmac';
 
@@ -12,6 +13,7 @@ var Application = class extends EventEmitter {
         this.serial = new SerialReader(this);
         this.web = new WebServer(this);
         this.ddp = new DDPServer(this);
+        this.terminal = new TerminalSession(this);
         this.relayboard_id = null;
         getmac.getMac(function(err,mac) { 
             if (!err) {
