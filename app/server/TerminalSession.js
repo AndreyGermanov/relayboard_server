@@ -11,7 +11,7 @@ var TerminalSession = class extends EventEmitter {
         var self = this;
         this.session = spawn('/bin/bash');
         this.session.stdout.on('data',(data) => {
-            self.buffer.push(data.toString('utf8'));
+            self.buffer.push(data.toString('utf8').split("\n"));
         })
     }
 
