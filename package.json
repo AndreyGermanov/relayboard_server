@@ -27,6 +27,7 @@
   "homepage": "https://github.com/AndreyGermanov/relayboard_server#readme",
   "dependencies": {
     "async": "^2.5.0",
+    "babel-cli": "^6.26.0",
     "babel-preset-node6": "^11.0.0",
     "body-parser": "1.15.2",
     "cors": "2.8.1",
@@ -42,7 +43,8 @@
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "pm2": "^2.6.1",
+    "node-gyp": "^3.6.2",
+    "pm2": "^2.7.1",
     "react": "^15.6.1",
     "react-blur-admin": "^0.11.1",
     "react-dom": "^15.6.1",
