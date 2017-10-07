@@ -258,6 +258,7 @@ const SettingsActions = class {
                 }, function(err,result) {
                     if (!err && result.status == 'ok') {
                         dispatch(self.applySettings(null,{
+                            title: form.title,
                             port: form.serial_port,
                             baudrate: form.serial_baudrate,
                             pins: _.orderBy(form.pins,['number'],['asc'])}));
