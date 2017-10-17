@@ -9,13 +9,13 @@ const Dashboard = class extends Component {
                 var command = 'ON',
                     color = 'red';
                     /*jshint ignore:start */
-                var link = <span className="fa fa-power-off relay-cell-img" style={{color:'gray'}}></span>
+                var link = <span className="fa fa-power-off relay-cell-img" title='NO CONNECTION' style={{color:'gray'}}></span>
                     /*jshint ignore:end */
                 if (relay == 1) {
                     command = 'OFF';
                     color = 'green';
                 }
-                if (this.props.online) {
+                if (this.props.online && this.props.connected) {
                     /*jshint ignore:start */
                     link = <a key={'link_'+index}
                               onClick={this.props.onRelayClick.bind(this,command,this.props.relayboard_config[index].number)}>
@@ -50,8 +50,13 @@ const Dashboard = class extends Component {
                             {this.props.relayboard_config[index].number}
                         </div>
                         <div>
-                            <h3><span style={{color:'yellow'}}><span className="ion-android-sunny"/>&nbsp;{temperature} C</span></h3>
-                            <h3><span style={{color:'cyan'}}><span className="fa fa-tint"/>&nbsp;{humidity} %</span></h3>
+                            <h3><span style={{color: (this.props.online && this.props.connected) ? 'yellow' : 'gray'}}>
+                                    <span className="ion-android-sunny"/>&nbsp;{temperature} C
+                                </span>
+                            </h3>
+                            <h3><span style={{color: (this.props.online && this.props.connected) ? 'cyan' : 'gray'}}>
+                                <span className="fa fa-tint"/>&nbsp;{humidity} %</span>
+                            </h3>
                         </div>
                         <div>
                             {this.props.relayboard_config[index].title}

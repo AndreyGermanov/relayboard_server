@@ -141,7 +141,7 @@ const PortalController = class extends Controller {
     
     registerEvents() {
         if (this.isConnected()) {
-            this.removeAllListeners('request');
+            this.removeAllListeners('serial_request');
             this.on('serial_request',this.application.serial.processRequest.bind(this.application.serial));
         }
         if (this.statusInterval) {

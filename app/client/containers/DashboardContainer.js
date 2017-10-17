@@ -8,7 +8,8 @@ const mapStateToProps = (state) => {
     return {
         relay_status: state.Dashboard.relay_status,
         relayboard_config: state.Settings.pins,
-        online: state.Dashboard.online
+        online: state.Dashboard.online,
+        connected: state.Settings.serial_connected
     };
 };
 

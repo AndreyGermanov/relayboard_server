@@ -1,5 +1,6 @@
 import SerialPort from 'serialport';
 import EventEmitter from 'events';
+import moment from 'moment-timezone';
 
 var SerialReader = class extends EventEmitter {
 
@@ -48,7 +49,6 @@ var SerialReader = class extends EventEmitter {
     tryConnect() {
         if (!this.isConnected()) {
             this.run();
-            this.current_relay_status_timestamp = Date.now();
         }
     }
 
@@ -74,6 +74,39 @@ var SerialReader = class extends EventEmitter {
             }
         };
         this.emit('request',request);
+    }
+
+    setStatus(status_string) {
+        var status = status_string.split(',');
+        status.pop();
+        this.current_relay_status = status.map(function(relay,index) {
+            if (this.config.pins[index]) {
+                if (this.config.pins[index].type == 'temperature') {
+                    var data_parts = relay.split('|');
+                    if (data_parts.length == 2) {
+                        data_parts = data_parts.map(function (data_part) {
+                            if (!data_part ||
+                                data_part != parseFloat(data_part) ||
+                                isNaN(data_part)) {
+                                return 0;
+                            } else {
+                                return parseFloat(data_part);
+                            }
+                        }, this);
+                        return data_parts.join('|');
+                    } else {
+                        return '0|0'
+                    }
+                } else {
+                    if (!relay || isNaN(relay) || relay != parseInt(relay)) {
+                        return 0;
+                    } else {
+                        return parseInt(relay);
+                    }
+                }
+            }
+        },this);
+        this.current_relay_status_timestamp = Date.now();
     }
 
     run(callback) {
@@ -108,9 +141,7 @@ var SerialReader = class extends EventEmitter {
                             string.shift();
                         };
                         if (string[0] == 'STATUS' && string[1]) {
-                            self.current_relay_status = string[1].split(',');
-                            self.current_relay_status.pop();
-                            self.current_relay_status_timestamp = Date.now();
+                            self.setStatus(string[1]);
                         };
                     }
                 });

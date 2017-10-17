@@ -22,17 +22,7 @@ const Settings = class extends Component {
             /*jshint ignore:end */
         );
     }
-
-    componentDidMount() {
-        while (!Store.isDDPClientConnected()) {
-        }
-        Store.store.dispatch(actions.getSettings());
-        setInterval(function() {
-            Store.store.dispatch(actions.getPortalStatus());
-            Store.store.dispatch(actions.getSerialStatus());
-        },1000);
-    }
-
+    
     componentWillUnmount() {
         Store.store.dispatch(actions.setPortalErrorMessages({}));
         Store.store.dispatch(actions.setSerialErrorMessages({}));

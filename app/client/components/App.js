@@ -48,6 +48,10 @@ var App = class extends Component {
         while (!Store.isDDPClientConnected()) {
         }
         Store.store.dispatch(actions.getSettings());
+        setInterval(function() {
+            Store.store.dispatch(actions.getPortalStatus());
+            Store.store.dispatch(actions.getSerialStatus());
+        },1000);
     }
 };
 
