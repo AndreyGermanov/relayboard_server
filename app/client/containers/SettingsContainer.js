@@ -2,6 +2,7 @@ import {connect} from 'react-redux';
 import Settings from '../components/Settings';
 import actions from '../actions/SettingsActions';
 import Store from '../store/Store';
+import data_settings from '../config/data';
 
 const mapStateToProps = (state) => {
     return {
@@ -16,7 +17,8 @@ const mapStateToProps = (state) => {
         errors: state.Settings.errors,
         connected: state.Settings.connected,
         serial_connected: state.Settings.serial_connected,
-        serial_errors: state.Settings.serial_errors
+        serial_errors: state.Settings.serial_errors,
+        data_settings: data_settings
     };
 };
 
@@ -70,6 +72,21 @@ const mapDispatchToProps = (dispatch) => {
         onChangePinTitleField: (id,e) => {
             if (e.target && typeof(e.target) != 'undefined') {
                 dispatch(actions.changePinTitle(id,e.target.value));
+            }
+        },
+        onChangePinSendLiveDataFlag: (id,e) => {
+            if (e.target && typeof(e.target) != 'undefined') {
+                dispatch(actions.changePinSendLiveDataFlag(id,e.target.checked));
+            }
+        },
+        onChangePinSaveToDbPeriod: (id,e) => {
+            if (e.target && typeof(e.target) != 'undefined') {
+                dispatch(actions.changePinSaveToDbPeriod(id,e.target.value));
+            }
+        },
+        onChangePinSendToPortalPeriod: (id,e) => {
+            if (e.target && typeof(e.target) != 'undefined') {
+                dispatch(actions.changePinSendToPortalPeriod(id,e.target.value));
             }
         },
         onAddPinClick: (e) => {

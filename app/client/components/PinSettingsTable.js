@@ -1,9 +1,19 @@
 import React,{Component} from 'react';
 
 const PinSettingsTable = class extends Component {
+    getPeriods(prefix) {
+        return this.props.data_settings.periods.map(function(period) {
+            var periodTitle = this.props.data_settings.getPeriodTitle(period);
+            return <option key={prefix+'_'+period} value={period}>{periodTitle}</option>
+        },this);
+    }
     render() {
         this.prepareForm();
-        var fields = this.fields;
+        var fields = this.fields,
+            save_to_db_periods = this.getPeriods('save_to_db'),
+            send_to_portal_periods = this.getPeriods('send_to_portal');
+        save_to_db_periods.unshift(<option key={'save_to_db_0'}>Disable</option>);
+        send_to_portal_periods.unshift(<option key={'send_to_portal_0'}>Disable</option>);
         var rows = this.props.pins.map(function(pin,index) {
             return (
                 /*jshint ignore:start */
@@ -36,6 +46,25 @@ const PinSettingsTable = class extends Component {
                         </div>
                     </td>
                     <td>
+                        <div>
+                            <input  key={'pin_'+index+'flag'} type="checkbox"
+                                    value={pin.send_live_data}
+                                    checked={pin.send_live_data}
+                                    onChange={this.props.onChangePinSendLiveDataFlag.bind(this,index)}
+                            />
+                        </div>
+                    </td>
+                    <td>
+                        <select className="form-control" value={pin.save_to_db_period} onChange={this.props.onChangePinSaveToDbPeriod.bind(this,index)}>
+                            {save_to_db_periods}
+                        </select>
+                    </td>
+                    <td>
+                        <select className="form-control" value={pin.send_to_portal_period} onChange={this.props.onChangePinSendToPortalPeriod.bind(this,index)}>
+                            {send_to_portal_periods}
+                        </select>
+                    </td>
+                    <td>
                         <button className="btn btn-danger" onClick={this.props.onDeletePinClick.bind(this,index)}>
                             <span className="fa fa-remove"/>&nbsp; Delete
                         </button>
@@ -53,11 +82,14 @@ const PinSettingsTable = class extends Component {
                     <th>Number</th>
                     <th>Type</th>
                     <th>Title</th>
+                    <th>Send live data</th>
+                    <th>Save to DB period</th>
+                    <th>Send to Portal Period</th>
                     <th>Actions</th>
                 </tr>
                 {rows}
                 <tr>
-                    <td colSpan="4">
+                    <td colSpan="7">
                         <button className="btn btn-success" onClick={this.props.onAddPinClick.bind(this)}>
                             <span className="fa fa-plus"/>&nbsp;New
                         </button>

@@ -23,7 +23,10 @@ const SettingsActions = class {
             SET_CONNECTED_TO_PORTAL: 'SET_CONNECTED_TO_PORTAL',
             SET_CONNECTED_TO_SERIAL: 'SET_CONNECTED_TO_SERIAL',
             APPLY_SETTINGS: "APPLY_PORTAL_SETTINGS",
-            SET_SERIAL_FORM_ERROR_MESSAGES: 'SET_SERIAL_FORM_ERROR_MESSAGES'
+            SET_SERIAL_FORM_ERROR_MESSAGES: 'SET_SERIAL_FORM_ERROR_MESSAGES',
+            CHANGE_PIN_SEND_LIVE_DATA_FLAG: 'CHANGE_PIN_SEND_LIVE_DATA_FLAG',
+            CHANGE_PIN_SAVE_TO_DB_PERIOD: 'CHANGE_PIN_SAVE_TO_DB_PERIOD',
+            CHANGE_PIN_SEND_TO_PORTAL_PERIOD: 'CHANGE_PIN_SEND_TO_PORTAL_PERIOD'
         };
     }
 
@@ -95,6 +98,30 @@ const SettingsActions = class {
     changePinTitle(id,value) {
         return {
             type: this.types.CHANGE_PIN_TITLE,
+            id: id,
+            value: value
+        };
+    }
+
+    changePinSendLiveDataFlag(id,value) {
+        return {
+            type: this.types.CHANGE_PIN_SEND_LIVE_DATA_FLAG,
+            id: id,
+            value: value
+        };
+    }
+
+    changePinSaveToDbPeriod(id,value) {
+        return {
+            type: this.types.CHANGE_PIN_SAVE_TO_DB_PERIOD,
+            id: id,
+            value: value
+        };
+    }
+
+    changePinSendToPortalPeriod(id,value) {
+        return {
+            type: this.types.CHANGE_PIN_SEND_TO_PORTAL_PERIOD,
             id: id,
             value: value
         };

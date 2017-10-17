@@ -68,7 +68,18 @@ const SettingsReducer = (state,action) => {
                 newState.title = action.serial_config.title;
                 newState.serial_port = action.serial_config.port;
                 newState.serial_baudrate = action.serial_config.baudrate;
-                newState.pins = action.serial_config.pins;
+                newState.pins = action.serial_config.pins.map(function(pin) {
+                    if (typeof(pin.send_live_data) == 'undefined' || pin.send_live_data === null) {
+                        pin.send_live_data = false;
+                    }
+                    if (typeof(pin.save_to_db_period) == 'undefined' || pin.save_to_db_period === null) {
+                        pin.save_to_db_period = 0;
+                    }
+                    if (typeof(pin.send_to_portal_period) == 'undefined' || pin.send_to_portal_period === null) {
+                        pin.send_to_portal_period = 0;
+                    }
+                    return pin;
+                });
             }
             break;
         case actions.types.CHANGE_TITLE_FIELD:
@@ -91,11 +102,23 @@ const SettingsReducer = (state,action) => {
         case actions.types.CHANGE_PIN_TITLE:
             newState.pins[action.id].title = action.value;
             break;
+        case actions.types.CHANGE_PIN_SEND_LIVE_DATA_FLAG:
+            newState.pins[action.id].send_live_data = action.value;
+            break;
+        case actions.types.CHANGE_PIN_SAVE_TO_DB_PERIOD:
+            newState.pins[action.id].save_to_db_period = action.value;
+            break;
+        case actions.types.CHANGE_PIN_SEND_TO_PORTAL_PERIOD:
+            newState.pins[action.id].send_to_portal_period = action.value;
+            break;
         case actions.types.ADD_PIN:
             newState.pins.push({
                 number: 0,
                 type: 'relay',
-                title: ''
+                title: '',
+                send_live_data: false,
+                save_to_db_period: 0,
+                send_to_portal_period: 0
             });
             break;
         case actions.types.DELETE_PIN:
