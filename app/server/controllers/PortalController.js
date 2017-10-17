@@ -159,9 +159,17 @@ const PortalController = class extends Controller {
             if (self.application.terminal.buffer && self.application.terminal.buffer.length) {
                 send_buffer = true;
             };
+
+            var config = self.application.serial.config,
+                status = {};
+            for (var index in self.application.serial.current_relay_status) {
+                if (config.pins[index] && config.pins[index].send_live_data) {
+                    status[parseInt(config.pins[index].number)] = self.application.serial.current_relay_status[index];
+                }
+            }
             self.ddpClient.call('updateRelayBoardStatus',
                 [{id:self.application.relayboard_id,
-                    status:self.application.serial.current_relay_status,
+                    status:status,
                     timestamp: self.application.serial.current_relay_status_timestamp,
                     command_responses:command_responses,terminal_buffer:self.application.terminal.buffer}],(err,result) => {
                 if (!err) {

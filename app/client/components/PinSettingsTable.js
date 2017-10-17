@@ -55,12 +55,14 @@ const PinSettingsTable = class extends Component {
                         </div>
                     </td>
                     <td>
-                        <select className="form-control" value={pin.save_to_db_period} onChange={this.props.onChangePinSaveToDbPeriod.bind(this,index)}>
+                        <select className="form-control" value={pin.save_to_db_period}
+                                onChange={this.props.onChangePinSaveToDbPeriod.bind(this,index)}>
                             {save_to_db_periods}
                         </select>
                     </td>
                     <td>
-                        <select className="form-control" value={pin.send_to_portal_period} onChange={this.props.onChangePinSendToPortalPeriod.bind(this,index)}>
+                        <select className="form-control" value={pin.send_to_portal_period}
+                                onChange={this.props.onChangePinSendToPortalPeriod.bind(this,index)}>
                             {send_to_portal_periods}
                         </select>
                     </td>
