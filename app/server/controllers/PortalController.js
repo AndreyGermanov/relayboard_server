@@ -103,6 +103,7 @@ const PortalController = class extends Controller {
         portal_config.port = params.port;
         portal_config.login = params.login;
         portal_config.password =params.password;
+        portal_config.send_to_portal_period = parseInt(params.send_to_portal_period);
         fs.writeFile(__dirname+'/../../../config/portal.js','export default '+JSON.stringify(portal_config), function(err) {
             if (!err) {
                 callback({status:'ok'});

@@ -26,7 +26,10 @@ const SettingsActions = class {
             SET_SERIAL_FORM_ERROR_MESSAGES: 'SET_SERIAL_FORM_ERROR_MESSAGES',
             CHANGE_PIN_SEND_LIVE_DATA_FLAG: 'CHANGE_PIN_SEND_LIVE_DATA_FLAG',
             CHANGE_PIN_SAVE_TO_DB_PERIOD: 'CHANGE_PIN_SAVE_TO_DB_PERIOD',
-            CHANGE_PIN_SEND_TO_PORTAL_PERIOD: 'CHANGE_PIN_SEND_TO_PORTAL_PERIOD'
+            CHANGE_PIN_SEND_TO_PORTAL_PERIOD: 'CHANGE_PIN_SEND_TO_PORTAL_PERIOD',
+            CHANGE_SEND_TO_PORTAL_PERIOD_FIELD: 'CHANGE_SEND_TO_PORTAL_PERIOD_FIELD',
+            CHANGE_DB_SAVE_PERIOD_FIELD: 'CHANGE_DB_SAVE_PERIOD_FIELD',
+            CHANGE_DATA_CACHE_GRANULARITY_FIELD: 'CHANGE_DATA_CACHE_GRANULARITY_FIELD'
         };
     }
 
@@ -72,11 +75,33 @@ const SettingsActions = class {
         };
     }
 
-    changeSerialBaudrateFied(value) {
+    changeSerialBaudrateField(value) {
         return {
             type: this.types.CHANGE_SERIAL_BAUDRATE_FIELD,
             value: value
         };
+    }
+
+    changeDbSavePeriodField(value) {
+        console.log(value);
+        return {
+            type: this.types.CHANGE_DB_SAVE_PERIOD_FIELD,
+            value: value
+        };
+    }
+
+    changeSendToPortalPeriodField(value) {
+        return {
+            type: this.types.CHANGE_SEND_TO_PORTAL_PERIOD_FIELD,
+            value: value
+        }
+    }
+
+    changeDataCacheGranularityField(value) {
+        return {
+            type: this.types.CHANGE_DATA_CACHE_GRANULARITY_FIELD,
+            value: value
+        }
     }
 
     changePinNumber(id,value) {
@@ -186,6 +211,9 @@ const SettingsActions = class {
             if (!form.port) {
                 errors.port = 'Port is required';
             }
+            if (!form.send_to_portal_period) {
+                errors.send_to_portal_period = 'Send to portal period is required';
+            }
             if (!form.login) {
                 errors.login = 'Login is required';
             } 
@@ -194,8 +222,14 @@ const SettingsActions = class {
             }
             if (form.port != parseInt(form.port)) {
                 errors.port = 'Port must be integer value';
+            } else {
+                form.port = parseInt(form.port);
             }
-            
+            if (form.send_to_portal_period != parseInt(form.send_to_portal_period)) {
+                errors.send_to_portal_period = 'Send to portal period must be integer value';
+            } else {
+                form.send_to_portal_period = parseInt(form.send_to_portal_period);
+            }
             if (_.toArray(errors).length>0) {
                 dispatch(this.setPortalErrorMessages(errors));
             } else {
@@ -204,6 +238,7 @@ const SettingsActions = class {
                     port: form.port,
                     login: form.login,
                     password: form.password,
+                    send_to_portal_period: form.send_to_portal_period,
                     delayed: true
                 }, function(err,result) {
                     if (!err && result.status == 'ok') {
@@ -231,6 +266,12 @@ const SettingsActions = class {
             if (!form.serial_baudrate) {
                 errors.serial_baudrate = 'Baud rate is required';
             }
+            if (!form.db_save_period) {
+                errors.db_save_period = 'Save to DB period is required';
+            }
+            if (!form.data_cache_granularity) {
+                errors.data_cache_granularity = 'Data cache granularity is required';
+            }
             if (!form.title) {
                 errors.title = 'Relayboard name is required';
             }
@@ -238,6 +279,16 @@ const SettingsActions = class {
                 errors.serial_baudrate = 'Baud rate must be integer value';
             } else {
                 form.serial_baudrate = parseInt(form.serial_baudrate);
+            }
+            if (form.db_save_period != parseInt(form.db_save_period)) {
+                errors.db_save_period = 'Save to DB period must be integer value';
+            } else {
+                form.db_save_period = parseInt(form.db_save_period);
+            }
+            if (form.data_cache_granularity != parseInt(form.data_cache_granularity)) {
+                errors.data_cache_granularity = 'Data Cache Granularity must be integer value';
+            } else {
+                form.data_cache_granularity = parseInt(form.data_cache_granularity);
             }
             if (form.pins && form.pins.length) {
                 for (var i in form.pins) {
@@ -280,6 +331,8 @@ const SettingsActions = class {
                     port: form.serial_port,
                     title: form.title,
                     baudrate: form.serial_baudrate,
+                    db_save_period: form.db_save_period,
+                    data_cache_granularity: form.data_cache_granularity,
                     pins: form.pins,
                     delayed: true
                 }, function(err,result) {
@@ -288,6 +341,8 @@ const SettingsActions = class {
                             title: form.title,
                             port: form.serial_port,
                             baudrate: form.serial_baudrate,
+                            db_save_period: form.db_save_period,
+                            data_cache_granularity: form.data_cache_granularity,
                             pins: _.orderBy(form.pins,['number'],['asc'])}));
                     } else {
                         if (err) {

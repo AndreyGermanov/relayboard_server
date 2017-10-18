@@ -13,6 +13,9 @@ const SettingsReducer = (state,action) => {
             title: '',
             serial_port: '',
             serial_baudrate: '',
+            db_save_period: 15,
+            data_cache_granularity: 4,
+            send_to_portal_period: 15,
             pins: [],
             serial_connected: false,
             serial_errors: {}
@@ -59,15 +62,19 @@ const SettingsReducer = (state,action) => {
             break;
         case actions.types.APPLY_SETTINGS:
             if (action.portal_config) {
+
                 newState.host = action.portal_config.host;
                 newState.port = action.portal_config.port;
                 newState.login = action.portal_config.login;
                 newState.password = action.portal_config.password;
+                newState.send_to_portal_period = action.portal_config.send_to_portal_period ? parseInt(action.portal_config.send_to_portal_period) : 15;
             }
             if (action.serial_config) {
                 newState.title = action.serial_config.title;
                 newState.serial_port = action.serial_config.port;
                 newState.serial_baudrate = action.serial_config.baudrate;
+                newState.db_save_period = action.serial_config.db_save_period ? parseInt(action.serial_config.db_save_period) : 15,
+                newState.data_cache_granularity = action.serial_config.data_cache_granularity ? parseInt(action.serial_config.data_cache_granularity) : 4;
                 newState.pins = action.serial_config.pins.map(function(pin) {
                     if (typeof(pin.send_live_data) == 'undefined' || pin.send_live_data === null) {
                         pin.send_live_data = false;
@@ -91,6 +98,23 @@ const SettingsReducer = (state,action) => {
         case actions.types.CHANGE_SERIAL_BAUDRATE_FIELD:
             if (action.value == parseInt(action.value)) {
                 newState.serial_baudrate = action.value;
+            }
+            break;
+        case actions.types.CHANGE_DB_SAVE_PERIOD_FIELD:
+            if (action.value == parseInt(action.value)) {
+                newState.db_save_period = parseInt(action.value);
+            }
+            break;
+        case actions.types.CHANGE_DATA_CACHE_GRANULARITY_FIELD:
+            if (action.value == parseInt(action.value)) {
+                newState.data_cache_granularity = parseInt(action.value);
+            }
+            break;
+        case actions.types.CHANGE_SEND_TO_PORTAL_PERIOD_FIELD:
+            if (action.value == parseInt(action.value)) {
+                if (action.value == parseInt(action.value)) {
+                    newState.send_to_portal_period = parseInt(action.value);
+                }
             }
             break;
         case actions.types.CHANGE_PIN_NUMBER:

@@ -72,6 +72,14 @@ const PortalSettings = class extends Component {
                                        type="password" onChange={this.props.onChangePasswordField.bind(this)}/>
                             </div>
                         </div>
+                        <div className={"form-group "+fields['send_to_portal_period'].has_error_class}>
+                            <label className="control-label col-sm-2" htmlFor="send_to_portal_period">Send data period (sec):</label>
+                            <div className="col-sm-10">
+                                <input className="form-control" id="send_to_portal_period" placeholder={fields['send_to_portal_period'].placeholder}
+                                       value={this.props.send_to_portal_period}
+                                       type="text" onChange={this.props.onChangeSendToPortalPeriodField.bind(this)}/>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -100,12 +108,9 @@ const PortalSettings = class extends Component {
             general: {
                 message: ''
             },
-            serial: {
-                message: ''
-            },
-            serial_port: {
+            send_to_portal_period: {
                 has_error_class: '',
-                placeholder: 'Port'
+                placeholder: 'Send data period (sec)'
             }
         };
 
@@ -134,6 +139,13 @@ const PortalSettings = class extends Component {
             fields.password = {
                 has_error_class: 'has-error',
                 placeholder: this.props.errors.password
+            };
+        }
+
+        if (this.props.errors.send_to_portal_period) {
+            fields.send_to_portal_period = {
+                has_error_class: 'has-error',
+                placeholder: this.props.errors.send_to_portal_period
             };
         }
 

@@ -14,7 +14,10 @@ const SerialSettings = class extends Component {
                 color: 'red'
             };
         }
-        
+        var granularity = this.props.data_settings.getCacheGranularityArray();
+        var data_cache_granularities_list = granularity.map(function(item,key) {
+            return <option key={'granularity_'+key} value={key}>{item}</option>;
+        },this);
         return (
             /*jshint ignore:start */
             <div className="panel panel-blur" style={{flex:1}}>
@@ -61,6 +64,24 @@ const SerialSettings = class extends Component {
                                        onChange={this.props.onChangeSerialBaudrateField.bind(this)}/>
                             </div>
                         </div>
+                        <div className={"form-group "+fields['data_cache_granularity'].has_error_class}>
+                            <label className="control-label col-sm-2" htmlFor="serial_boudrate">Data cache granularity:</label>
+                            <div className="col-sm-10">
+                                <select className="form-control" value={this.props.data_cache_granularity} id="data_cache_granularity"
+                                       placeholder={fields['serial_baudrate'].placeholder}
+                                       onChange={this.props.onChangeDataCacheGranularityField.bind(this)}>
+                                    {data_cache_granularities_list}
+                                </select>
+                            </div>
+                        </div>
+                        <div className={"form-group "+fields['db_save_period'].has_error_class}>
+                            <label className="control-label col-sm-2" htmlFor="db_save_period">Save to DB Period:</label>
+                            <div className="col-sm-10">
+                                <input className="form-control" value={this.props.db_save_period} id="db_save_period"
+                                       placeholder={fields['db_save_period'].placeholder}
+                                       onChange={this.props.onChangeDbSavePeriodField.bind(this)}/>
+                            </div>
+                        </div>
                         <div className="row">
                             <h3>Pin map</h3>
                             <PinSettingsTable {...this.props}/>
@@ -83,6 +104,14 @@ const SerialSettings = class extends Component {
                 has_error_class: '',
                 placeholder: 'Baud rate'
             },
+            db_save_period: {
+                has_error_class: '',
+                placeholder: 'Save to DB Period'
+            },
+            data_cache_granularity: {
+                has_error_class: '',
+                placeholder: 'Data Cache Granularity'
+            },
             title: {
                 has_error_class: '',
                 placeholder: 'Title'
@@ -103,6 +132,20 @@ const SerialSettings = class extends Component {
             fields.serial_baudrate = {
                 has_error_class: 'has-error',
                 placeholder: this.props.serial_errors.serial_baudrate
+            };
+        }
+
+        if (this.props.serial_errors.data_cache_granularity) {
+            fields.data_cache_granularity = {
+                has_error_class: 'has-error',
+                placeholder: this.props.serial_errors.data_cache_granularity
+            };
+        }
+
+        if (this.props.serial_errors.db_save_period) {
+            fields.db_save_period = {
+                has_error_class: 'has-error',
+                placeholder: this.props.serial_errors.db_save_period
             };
         }
 

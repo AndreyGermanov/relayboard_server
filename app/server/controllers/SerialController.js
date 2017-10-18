@@ -34,6 +34,8 @@ const SerialController = class extends Controller {
     post_save(params,callback) {
         config.port = params.port;
         config.baudrate = parseInt(params.baudrate);
+        config.db_save_period = parseInt(params.db_save_period);
+        config.data_cache_granularity = parseInt(params.data_cache_granularity);
         config.title = params.title ? params.title : this.application.relayboard_id;
         config.pins = _.orderBy(params.pins,['number'],['asc']);
         config.pins = config.pins.map(function(pin) {

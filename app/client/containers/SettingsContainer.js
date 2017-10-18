@@ -9,6 +9,9 @@ const mapStateToProps = (state) => {
         title: state.Settings.title,
         serial_port: state.Settings.serial_port,
         serial_baudrate: state.Settings.serial_baudrate,
+        db_save_period: state.Settings.db_save_period,
+        data_cache_granularity: state.Settings.data_cache_granularity,
+        send_to_portal_period: state.Settings.send_to_portal_period,
         pins: state.Settings.pins,
         host: state.Settings.host,
         port: state.Settings.port,
@@ -56,7 +59,7 @@ const mapDispatchToProps = (dispatch) => {
         },
         onChangeSerialBaudrateField: (e) => {
             if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
-                dispatch(actions.changeSerialBaudrateFied(e.target.value));
+                dispatch(actions.changeSerialBaudrateField(e.target.value));
             }
         },
         onChangePinNumberField: (id,e) => {
@@ -119,6 +122,21 @@ const mapDispatchToProps = (dispatch) => {
                 dispatch(actions.connectToPortal());
             } else {
                 dispatch(actions.disconnectFromPortal());
+            }
+        },
+        onChangeDbSavePeriodField: (e) => {
+            if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
+                dispatch(actions.changeDbSavePeriodField(e.target.value))
+            }
+        },
+        onChangeSendToPortalPeriodField: (e) => {
+            if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
+                dispatch(actions.changeSendToPortalPeriodField(e.target.value));
+            }
+        },
+        onChangeDataCacheGranularityField: (e) => {
+            if (e.target && typeof(e.target)!='undefined' & e.target.value == parseInt(e.target.value)) {
+                dispatch(actions.changeDataCacheGranularityField(e.target.value));
             }
         }
     };

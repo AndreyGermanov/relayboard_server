@@ -1,6 +1,7 @@
 import SerialPort from 'serialport';
 import EventEmitter from 'events';
 import moment from 'moment-timezone';
+import _ from 'lodash';
 
 var SerialReader = class extends EventEmitter {
 
@@ -14,6 +15,17 @@ var SerialReader = class extends EventEmitter {
         this.current_relay_status_timestamp = 0;
         this.config = require('../../config/relayboard.js').default;
         this.lastConfigUpdateTime = Date.now();
+        this.sensor_data = {
+            save_to_db_period: {
+
+            },
+            send_to_portal_period: {
+
+            }
+        };
+        this.cached_sensor_data = {
+
+        };
         this.on('request',this.processRequest.bind(this));
         setInterval(this.tryConnect.bind(this),1000);
         setInterval(this.handleCallbacks.bind(this),5000);
@@ -76,33 +88,124 @@ var SerialReader = class extends EventEmitter {
         this.emit('request',request);
     }
 
+    cacheSensorData(sensor_data) {
+        if (!this.cached_sensor_data[sensor_data.operation]) {
+            this.cached_sensor_data[sensor_data.operation] = {};
+        }
+        if (!this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level]) {
+            this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level] = {};
+        }
+        if (!this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id]) {
+            this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id] = {
+                fields: {}
+            };
+        }
+        var is_changed = false;
+
+        if (!_.isEqual(this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id].fields,sensor_data.fields)) {
+            is_changed = true;
+        }
+        if (is_changed) {
+            this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id].fields = _.cloneDeep(sensor_data.fields);
+        }
+    }
+
     setStatus(status_string) {
         var status = status_string.split(',');
         status.pop();
         this.current_relay_status = status.map(function(relay,index) {
             if (this.config.pins[index]) {
+                var result = 0;
+                var fields = [];
                 if (this.config.pins[index].type == 'temperature') {
-                    var data_parts = relay.split('|');
-                    if (data_parts.length == 2) {
-                        data_parts = data_parts.map(function (data_part) {
-                            if (!data_part ||
-                                data_part != parseFloat(data_part) ||
-                                isNaN(data_part)) {
-                                return 0;
-                            } else {
-                                return parseFloat(data_part);
+                    fields = ['temperature', 'humidity'];
+                } else if (this.config.pins[index].type == 'relay') {
+                    fields = ['status'];
+                }
+
+                var data_parts = relay.split('|');
+                if (data_parts.length == fields.length) {
+                    data_parts = data_parts.map(function (data_part,data_part_index) {
+                        if (!data_part ||
+                            data_part != parseFloat(data_part) ||
+                            isNaN(data_part)) {
+                            result = 0;
+                        } else {
+                            result = parseFloat(data_part);
+                        }
+                        var data_to_write = null;
+                        ['save_to_db_period','send_to_portal_period'].forEach(function(operation){
+                            var pin_number = this.config.pins[index].number
+                            if (!this.sensor_data[operation][pin_number]) {
+                                this.sensor_data[operation][pin_number] = {
+                                    count: {},
+                                    sum: {},
+                                    max: {},
+                                    min: {},
+                                    last_read_timestamp: 0
+                                }
                             }
-                        }, this);
-                        return data_parts.join('|');
-                    } else {
-                        return '0|0'
-                    }
+                            if (!this.config.pins[index][operation]) {
+                                return;
+                            }
+                            var data_part_field = fields[data_part_index];
+                            if (this.sensor_data[operation][pin_number].last_read_timestamp &&
+                                    Date.now()-this.sensor_data[operation][pin_number].last_read_timestamp>=this.config.pins[index][operation]*1000) {
+                                data_to_write = {
+                                    sensor_id: this.config.pins[index].number,
+                                    aggregate_level:  this.config.pins[index][operation],
+                                    timestamp: Math.round(Date.now()/(this.config.pins[index][operation]*1000))*(this.config.pins[index][operation]*1000),
+                                    operation: operation,
+                                    fields: {}
+                                };
+                                fields.forEach(function(data_part_fld) {
+                                    data_to_write.fields[data_part_fld] = {
+                                        max: this.sensor_data[operation][pin_number].max[data_part_fld],
+                                        min: this.sensor_data[operation][pin_number].min[data_part_fld],
+                                        avg: parseFloat((this.sensor_data[operation][pin_number].sum[data_part_fld] / this.sensor_data[operation][pin_number].count[data_part_fld]).toFixed(2))
+                                    };
+                                    this.sensor_data[operation][pin_number].count[data_part_fld] = 0;
+                                    this.sensor_data[operation][pin_number].sum[data_part_fld] = 0;
+                                    this.sensor_data[operation][pin_number].min[data_part_fld] = 0;
+                                    this.sensor_data[operation][pin_number].max[data_part_fld] = 0;
+                                    this.sensor_data[operation][pin_number].last_read_timestamp = 0;
+                                },this);
+                                data_to_write.timestamp_formatted = moment(data_to_write.timestamp).format("YYYY-MM-DD HH:mm:ss");
+                                this.cacheSensorData(data_to_write);
+                            }
+                            if (!this.sensor_data[operation][pin_number].sum[data_part_field]) {
+                                this.sensor_data[operation][pin_number].sum[data_part_field] = 0;
+                            }
+                            if (!this.sensor_data[operation][pin_number].min[data_part_field]) {
+                                this.sensor_data[operation][pin_number].min[data_part_field] = 9999999;
+                            }
+                            if (!this.sensor_data[operation][pin_number].max[data_part_field]) {
+                                this.sensor_data[operation][pin_number].max[data_part_field] = -9999999;
+                            }
+                            if (!this.sensor_data[operation][pin_number].count[data_part_field]) {
+                                this.sensor_data[operation][pin_number].count[data_part_field] = 0;
+                            }
+                            this.sensor_data[operation][pin_number].count[data_part_field] += 1;
+                            this.sensor_data[operation][pin_number].sum[data_part_field] += result;
+                            if (result > this.sensor_data[operation][pin_number].max[data_part_field]) {
+                                this.sensor_data[operation][pin_number].max[data_part_field] = result;
+                            }
+                            if (result < this.sensor_data[operation][pin_number].min[data_part_field]) {
+                                this.sensor_data[operation][pin_number].min[data_part_field] = result;
+                            }
+                            if (!this.sensor_data[operation][pin_number].last_read_timestamp) {
+                                this.sensor_data[operation][pin_number].last_read_timestamp = Date.now();
+                            }
+                        },this)
+                        return result;
+                    }, this);
+                    return data_parts.join('|');
                 } else {
-                    if (!relay || isNaN(relay) || relay != parseInt(relay)) {
-                        return 0;
-                    } else {
-                        return parseInt(relay);
+                    var data_parts = [];
+                    for (var i in fields) {
+                        result.push(0);
                     }
+                    return data_parts.join('|')
                 }
             }
         },this);
