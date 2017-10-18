@@ -75,7 +75,7 @@ const SerialSettings = class extends Component {
                             </div>
                         </div>
                         <div className={"form-group "+fields['db_save_period'].has_error_class}>
-                            <label className="control-label col-sm-2" htmlFor="db_save_period">Save to DB Period:</label>
+                            <label className="control-label col-sm-2" htmlFor="db_save_period">Save to DB Period (sec):</label>
                             <div className="col-sm-10">
                                 <input className="form-control" value={this.props.db_save_period} id="db_save_period"
                                        placeholder={fields['db_save_period'].placeholder}
