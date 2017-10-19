@@ -1,8 +1,11 @@
 import Controller from './Controller';
 import ddpClient from 'ddp';
 import portal_config from '../../../config/portal';
-import fs from 'fs';
+import data_config from '../../../config/data';
 import _ from 'lodash';
+import fs from 'fs-extra';
+import utils from '../lib/utils';
+import async from 'async';
 
 const PortalController = class extends Controller {
     constructor(application) {
@@ -11,10 +14,11 @@ const PortalController = class extends Controller {
         this.statusInterval = null;
         this.pollStatusPeriod = 1000;
         this.pollConnectionStatusPeriod = 10000;
+        this.sendBufferLengh = 100000;
         this.lastPortalResponseTime = Date.now();
         this.command_responses = {};
         this.connect = false;
-
+        setInterval(this.sendData.bind(this),portal_config.send_to_portal_period*1000);
         setInterval(this.tryConnectToPortal.bind(this),this.pollConnectionStatusPeriod);
     }
 
@@ -221,6 +225,79 @@ const PortalController = class extends Controller {
 
     get_status(params,callback) {
         callback({status: 'ok', connected: this.isConnected()})
+    }
+
+    sendData() {
+        if (!this.isConnected() || this.is_moving) {
+            return;
+        }
+        this.is_moving = true;
+        this.processed_files = [];
+        var self = this,
+            data_to_save = '';
+        utils.get_files(data_config.cachePath+'/send_to_portal_period/',(files) => {
+            async.eachSeries(files,function(file,callback) {
+                if (self.application.serial.editing_cache_files.indexOf(file)==-1) {
+                    var lock_file_name = file+'_'+(Date.now())+'.lock';
+                    fs.move(file,lock_file_name,function() {
+                        fs.readFile(lock_file_name,'utf8',function(err,data) {
+                            if (err) {
+                            }
+                            if (data) {
+                                data_to_save+=data;
+                                self.processed_files.push(lock_file_name);
+                                if (data_to_save.length>self.sendBufferLength) {
+                                    self.ddpClient.call('addRelayBoardData',{
+                                        id: this.application.id,
+                                        data: data_to_save}, function(err,result) {
+                                            data_to_save = '';
+                                            if (!err && result.status == 'ok') {
+                                                async.eachSeries(self.processed_files,function(file,callback) {
+                                                    fs.unlink(file, function() {
+                                                        callback();
+                                                    })
+                                                }, function() {
+                                                    callback(true);
+                                                })
+                                            } else {
+                                                callback(true)
+                                            }
+                                        })
+                                } else {
+                                    callback();
+                                }
+                            } else {
+                                callback();
+                            }
+                        })
+                    });
+                } else {
+                    callback();
+                }
+            }, function(err) {
+                if (data_to_save) {
+                    self.ddpClient.call('addRelayBoardData',[{
+                        id: self.application.relayboard_id,
+                        delayed:true,
+                        data: data_to_save}], function(err,result) {
+                        data_to_save = '';
+                        if (!err && result.status == 'ok') {
+                            async.eachSeries(self.processed_files,function(file,callback) {
+                                fs.unlink(file, function() {
+                                    callback();
+                                })
+                            }, function() {
+                                self.is_moving = false;
+                            })
+                        } else {
+                            self.is_moving = false;
+                        }
+                    })
+                } else {
+                    self.is_moving = false;
+                }
+            });
+        });
     }
 };
 

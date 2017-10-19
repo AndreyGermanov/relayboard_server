@@ -98,6 +98,7 @@ const SettingsActions = class {
     }
 
     changeDataCacheGranularityField(value) {
+        console.log(value);
         return {
             type: this.types.CHANGE_DATA_CACHE_GRANULARITY_FIELD,
             value: value

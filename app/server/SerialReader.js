@@ -2,6 +2,8 @@ import SerialPort from 'serialport';
 import EventEmitter from 'events';
 import moment from 'moment-timezone';
 import _ from 'lodash';
+import data_settings from '../../config/data.js';
+import fs from 'fs-extra';
 
 var SerialReader = class extends EventEmitter {
 
@@ -26,6 +28,7 @@ var SerialReader = class extends EventEmitter {
         this.cached_sensor_data = {
 
         };
+        this.editing_cache_files = [];
         this.on('request',this.processRequest.bind(this));
         setInterval(this.tryConnect.bind(this),1000);
         setInterval(this.handleCallbacks.bind(this),5000);
@@ -88,7 +91,7 @@ var SerialReader = class extends EventEmitter {
         this.emit('request',request);
     }
 
-    cacheSensorData(sensor_data) {
+    cacheSensorData(sensor_data,callback) {
         if (!this.cached_sensor_data[sensor_data.operation]) {
             this.cached_sensor_data[sensor_data.operation] = {};
         }
@@ -100,13 +103,25 @@ var SerialReader = class extends EventEmitter {
                 fields: {}
             };
         }
-        var is_changed = false;
 
         if (!_.isEqual(this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id].fields,sensor_data.fields)) {
-            is_changed = true;
-        }
-        if (is_changed) {
             this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id].fields = _.cloneDeep(sensor_data.fields);
+            var date_parts = moment(sensor_data.timestamp).format('YYYY-MM-DD-HH-mm-ss').split('-').slice(0,this.config.data_cache_granularity),
+                file_name = date_parts.pop(),
+                dir_name = data_settings.cachePath+'/'+sensor_data.operation+'/'+date_parts.join('/')+'/';
+                delete sensor_data.operation;
+                this.editing_cache_files.push(dir_name+file_name);
+                var self = this;
+                fs.outputFile(dir_name+file_name,JSON.stringify(sensor_data)+',',function(err) {
+                    self.editing_cache_files.splice(self.editing_cache_files.indexOf(dir_name+file_name),1);
+                    if (callback) {
+                        callback();
+                    }
+                });
+        } else {
+            if (callback) {
+                callback();
+            }
         }
     }
 
@@ -170,7 +185,6 @@ var SerialReader = class extends EventEmitter {
                                     this.sensor_data[operation][pin_number].max[data_part_fld] = 0;
                                     this.sensor_data[operation][pin_number].last_read_timestamp = 0;
                                 },this);
-                                data_to_write.timestamp_formatted = moment(data_to_write.timestamp).format("YYYY-MM-DD HH:mm:ss");
                                 this.cacheSensorData(data_to_write);
                             }
                             if (!this.sensor_data[operation][pin_number].sum[data_part_field]) {

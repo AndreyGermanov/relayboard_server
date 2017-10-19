@@ -16,7 +16,7 @@ const SerialSettings = class extends Component {
         }
         var granularity = this.props.data_settings.getCacheGranularityArray();
         var data_cache_granularities_list = granularity.map(function(item,key) {
-            return <option key={'granularity_'+key} value={key}>{item}</option>;
+            return <option key={'granularity_'+key} value={key+1}>{item}</option>;
         },this);
         return (
             /*jshint ignore:start */
