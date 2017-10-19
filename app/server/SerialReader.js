@@ -150,7 +150,7 @@ var SerialReader = class extends EventEmitter {
                         }
                         var data_to_write = null;
                         ['save_to_db_period','send_to_portal_period'].forEach(function(operation){
-                            var pin_number = this.config.pins[index].number
+                            var pin_number = this.config.pins[index].number;
                             if (!this.sensor_data[operation][pin_number]) {
                                 this.sensor_data[operation][pin_number] = {
                                     count: {},
@@ -173,7 +173,8 @@ var SerialReader = class extends EventEmitter {
                                     operation: operation,
                                     fields: {}
                                 };
-                                fields.forEach(function(data_part_fld) {
+                                for (var i in fields) {
+                                    var data_part_fld = fields[i];
                                     data_to_write.fields[data_part_fld] = {
                                         max: this.sensor_data[operation][pin_number].max[data_part_fld],
                                         min: this.sensor_data[operation][pin_number].min[data_part_fld],
@@ -184,7 +185,7 @@ var SerialReader = class extends EventEmitter {
                                     this.sensor_data[operation][pin_number].min[data_part_fld] = 0;
                                     this.sensor_data[operation][pin_number].max[data_part_fld] = 0;
                                     this.sensor_data[operation][pin_number].last_read_timestamp = 0;
-                                },this);
+                                };
                                 this.cacheSensorData(data_to_write);
                             }
                             if (!this.sensor_data[operation][pin_number].sum[data_part_field]) {
@@ -200,17 +201,17 @@ var SerialReader = class extends EventEmitter {
                                 this.sensor_data[operation][pin_number].count[data_part_field] = 0;
                             }
                             this.sensor_data[operation][pin_number].count[data_part_field] += 1;
-                            this.sensor_data[operation][pin_number].sum[data_part_field] += result;
+                            this.sensor_data[operation][pin_number].sum[data_part_field] += parseFloat(result);
                             if (result > this.sensor_data[operation][pin_number].max[data_part_field]) {
-                                this.sensor_data[operation][pin_number].max[data_part_field] = result;
+                                this.sensor_data[operation][pin_number].max[data_part_field] = parseFloat(result);
                             }
                             if (result < this.sensor_data[operation][pin_number].min[data_part_field]) {
-                                this.sensor_data[operation][pin_number].min[data_part_field] = result;
+                                this.sensor_data[operation][pin_number].min[data_part_field] = parseFloat(result);
                             }
                             if (!this.sensor_data[operation][pin_number].last_read_timestamp) {
                                 this.sensor_data[operation][pin_number].last_read_timestamp = Date.now();
                             }
-                        },this)
+                        },this);
                         return result;
                     }, this);
                     return data_parts.join('|');

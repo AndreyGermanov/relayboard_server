@@ -18,6 +18,8 @@ const PortalController = class extends Controller {
         this.lastPortalResponseTime = Date.now();
         this.command_responses = {};
         this.connect = false;
+        this.is_moving = false;
+        this.begin_moving_time = 0;
         setInterval(this.sendData.bind(this),portal_config.send_to_portal_period*1000);
         setInterval(this.tryConnectToPortal.bind(this),this.pollConnectionStatusPeriod);
     }
@@ -228,10 +230,18 @@ const PortalController = class extends Controller {
     }
 
     sendData() {
-        if (!this.isConnected() || this.is_moving) {
+        if (!this.isConnected()) {
             return;
         }
+        if (this.is_moving) {
+            if (Date.now()-this.begin_moving_time>30000) {
+                this.is_moving = false;
+            } else {
+                return;
+            }
+        }
         this.is_moving = true;
+        this.begin_moving_time = Date.now();
         this.processed_files = [];
         var self = this,
             data_to_save = '';
