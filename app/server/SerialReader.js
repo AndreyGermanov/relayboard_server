@@ -112,7 +112,7 @@ var SerialReader = class extends EventEmitter {
                 delete sensor_data.operation;
                 this.editing_cache_files.push(dir_name+file_name);
                 var self = this;
-                fs.outputFile(dir_name+file_name,JSON.stringify(sensor_data)+',',function(err) {
+                fs.outputFile(dir_name+file_name,JSON.stringify(sensor_data)+'|',function(err) {
                     self.editing_cache_files.splice(self.editing_cache_files.indexOf(dir_name+file_name),1);
                     if (callback) {
                         callback();
