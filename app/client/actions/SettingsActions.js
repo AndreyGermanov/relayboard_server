@@ -83,7 +83,6 @@ const SettingsActions = class {
     }
 
     changeDbSavePeriodField(value) {
-        console.log(value);
         return {
             type: this.types.CHANGE_DB_SAVE_PERIOD_FIELD,
             value: value
@@ -98,7 +97,6 @@ const SettingsActions = class {
     }
 
     changeDataCacheGranularityField(value) {
-        console.log(value);
         return {
             type: this.types.CHANGE_DATA_CACHE_GRANULARITY_FIELD,
             value: value
