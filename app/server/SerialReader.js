@@ -169,7 +169,7 @@ var SerialReader = class extends EventEmitter {
                                 data_to_write = {
                                     sensor_id: this.config.pins[index].number,
                                     aggregate_level:  this.config.pins[index][operation],
-                                    timestamp: Math.round(Date.now()/(this.config.pins[index][operation]*1000))*(this.config.pins[index][operation]*1000),
+                                    timestamp: Math.round((Date.now()/1000)/(this.config.pins[index][operation]))*(this.config.pins[index][operation]),
                                     operation: operation,
                                     fields: {}
                                 };
