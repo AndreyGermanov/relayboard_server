@@ -88,7 +88,6 @@ var SerialReader = class extends EventEmitter {
             callback: () => {
             }
         };
-        console.log(request);
         this.emit('request',request);
     }
 

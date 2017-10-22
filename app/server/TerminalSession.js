@@ -7,6 +7,10 @@ var TerminalSession = class extends EventEmitter {
     constructor(application) {
         super(application);
         this.application = application;
+        this.run();
+    }
+
+    run() {
         this.buffer = [];
         var self = this;
         this.session = spawn('/bin/bash');
@@ -16,7 +20,12 @@ var TerminalSession = class extends EventEmitter {
     }
 
     processRequest(line) {
-        this.session.stdin.write(line+"\n");
+        if (line == 'reset_session') {
+            this.session.kill();
+            this.run();
+        } else {
+            this.session.stdin.write(line + "\n");
+        }
     }
 }
 
