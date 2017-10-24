@@ -104,20 +104,26 @@ var SerialReader = class extends EventEmitter {
             };
         }
 
-        if (!_.isEqual(this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id].fields,sensor_data.fields) || true) {
+        if (!_.isEqual(this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id].fields,sensor_data.fields)) {
             this.cached_sensor_data[sensor_data.operation][sensor_data.aggregate_level][sensor_data.sensor_id].fields = _.cloneDeep(sensor_data.fields);
             var date_parts = moment(sensor_data.timestamp*1000).format('YYYY-MM-DD-HH-mm-ss').split('-').slice(0,this.config.data_cache_granularity),
                 file_name = date_parts.pop(),
-                dir_name = data_settings.cachePath+'/'+sensor_data.operation+'/'+date_parts.join('/')+'/';
+                dir_name = data_settings.cachePath+'/'+sensor_data.operation+'/serial/'+date_parts.join('/')+'/';
                 delete sensor_data.operation;
             this.editing_cache_files.push(dir_name+file_name);
             var self = this;
-            fs.outputFile(dir_name+file_name,JSON.stringify(sensor_data)+'|',function(err) {
-                self.editing_cache_files.splice(self.editing_cache_files.indexOf(dir_name+file_name),1);
-                if (callback) {
-                    callback();
+            fs.stat(dir_name+file_name, function(err,stat) {
+                var func = fs.outputFile;
+                if (stat && stat.isFile()) {
+                    func = fs.appendFile;
                 }
-            });
+                func(dir_name+file_name,JSON.stringify(sensor_data)+'|',function(err) {
+                    self.editing_cache_files.splice(self.editing_cache_files.indexOf(dir_name+file_name),1);
+                    if (callback) {
+                        callback();
+                    }
+                });
+            })
         } else {
             if (callback) {
                 callback();

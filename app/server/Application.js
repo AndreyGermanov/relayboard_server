@@ -4,6 +4,9 @@ import DDPServer from './DDPServer.js';
 import TerminalSession from './TerminalSession';
 import {EventEmitter} from 'events';
 import getmac from 'getmac';
+import fs from 'fs-extra';
+import path from 'path';
+import async from 'async';
 
 var Application = class extends EventEmitter {
     constructor() {
@@ -25,6 +28,59 @@ var Application = class extends EventEmitter {
                 });
             });
         });
+    }
+
+    clean_empty_dirs (folder,callback) {
+        var files = [],
+            self = this;
+
+        async.series([
+            function(callback) {
+                fs.stat(folder,function(err,stat) {
+                    if (stat && !stat.isDirectory()) {
+                        callback(true);
+                    } else {
+                        callback();
+                    }
+                })
+            },
+            function(callback) {
+                fs.readdir(folder,function(err,f) {
+                    if (f && f.length) {
+                        files = f ;
+                        callback();
+                    } else {
+                        callback();
+                    }
+                });
+            },
+            function(callback) {
+                async.eachSeries(files,function(file,callback) {
+                    var fullPath = path.join(folder,file);
+                    self.clean_empty_dirs(fullPath,function() {
+                        callback();
+                    })
+                }, function() {
+                    callback();
+                })
+            },
+            function(callback) {
+                fs.readdir(folder,function(err,f) {
+                    if (f.length == 0) {
+                        fs.rmdir(folder,function(err) {
+                            callback();
+                        })
+                    } else {
+                        callback();
+                    }
+                })
+
+            }
+        ],function() {
+            if (callback) {
+                callback();
+            }
+        })
     }
 };
 

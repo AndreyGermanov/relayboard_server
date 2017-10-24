@@ -248,11 +248,12 @@ const PortalController = class extends Controller {
         utils.get_files(data_config.cachePath+'/send_to_portal_period/',(files) => {
             async.eachSeries(files,function(file,callback) {
                 if (self.application.serial.editing_cache_files.indexOf(file)==-1) {
-                    var lock_file_name = file+'_'+(Date.now())+'.lock';
+                    var lock_file_name = file;
+                    if (file.toString().search('.lock') == -1) {
+                        lock_file_name = file + '_' + (Date.now()) + '.lock';
+                    }
                     fs.move(file,lock_file_name,function() {
                         fs.readFile(lock_file_name,'utf8',function(err,data) {
-                            if (err) {
-                            }
                             if (data) {
                                 data_to_save+=data;
                                 self.processed_files.push(lock_file_name);
@@ -267,7 +268,9 @@ const PortalController = class extends Controller {
                                                         callback();
                                                     })
                                                 }, function() {
-                                                    callback(true);
+                                                    self.application.clean_empty_dirs(data_config.cachePath+'/send_to_portal_period/',function() {
+                                                        callback(true);
+                                                    });
                                                 })
                                             } else {
                                                 callback(true)
@@ -297,7 +300,9 @@ const PortalController = class extends Controller {
                                     callback();
                                 })
                             }, function() {
-                                self.is_moving = false;
+                                self.application.clean_empty_dirs(data_config.cachePath+'/send_to_portal_period/',function() {
+                                    self.is_moving = false;
+                                });
                             })
                         } else {
                             self.is_moving = false;
